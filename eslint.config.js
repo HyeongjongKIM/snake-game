@@ -43,6 +43,7 @@ export default tseslint.config(
       '.pnp.*',
       'yarn.lock',
       'eslint.config.js',
+      'vite.config.ts',
     ],
   },
 );

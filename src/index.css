@@ -1,0 +1,137 @@
+@import 'tailwindcss';
+
+/* Custom CSS variables for neon colors */
+:root {
+  --neon-blue: #00ffff;
+  --neon-pink: #ff0080;
+  --neon-green: #00ff41;
+  --neon-orange: #ff8000;
+  --dark-bg: #0a0a0f;
+  --darker-bg: #050508;
+}
+
+@theme {
+  --color-neon-blue: #00ffff;
+  --color-neon-pink: #ff0080;
+  --color-neon-green: #00ff41;
+  --color-neon-orange: #ff8000;
+  --color-dark-bg: #0a0a0f;
+  --color-darker-bg: #050508;
+
+  /* Custom shadows */
+  --shadow-neon-blue: 0 0 20px #00ffff, inset 0 0 20px rgba(0, 255, 255, 0.1);
+  --shadow-neon-blue-glow:
+    0 0 30px #00ffff, inset 0 0 30px rgba(0, 255, 255, 0.1);
+  --shadow-neon-pink: 0 0 30px #ff0080, inset 0 0 30px rgba(255, 0, 128, 0.1);
+  --shadow-neon-pink-strong:
+    0 0 40px #ff0080, inset 0 0 40px rgba(255, 0, 128, 0.1);
+  --shadow-neon-green: 0 0 15px rgba(0, 255, 65, 0.3);
+  --shadow-neon-green-hover:
+    0 0 25px #00ff41, inset 0 0 25px rgba(0, 255, 65, 0.2);
+  --shadow-neon-orange: 0 0 15px rgba(255, 128, 0, 0.3);
+  --shadow-neon-orange-hover:
+    0 0 25px #ff8000, inset 0 0 25px rgba(255, 128, 0, 0.2);
+  --shadow-neon-pink-button: 0 0 15px rgba(255, 0, 128, 0.3);
+  --shadow-neon-pink-button-hover: 0 0 25px rgba(255, 0, 128, 0.2);
+
+  /* Custom text shadows */
+  --text-shadow-neon-glow: 0 0 10px currentColor;
+  --text-shadow-neon-strong: 0 0 10px currentColor, 0 0 20px currentColor;
+}
+
+@layer base {
+  * {
+    @apply box-border;
+  }
+
+  html {
+    @apply text-base antialiased font-['Orbitron'];
+  }
+
+  /* Body styles */
+  body {
+    @apply bg-dark-bg bg-gradient-to-br from-purple-900/30 via-pink-900/30 to-blue-900/20 min-h-screen overflow-hidden w-full h-screen;
+  }
+
+  /* Default typography styles */
+  h1 {
+    @apply text-6xl font-black leading-tight;
+  }
+
+  h2 {
+    @apply text-4xl font-bold leading-tight;
+  }
+
+  h3 {
+    @apply text-3xl font-bold leading-tight;
+  }
+
+  h4 {
+    @apply text-2xl font-semibold leading-snug;
+  }
+
+  h5 {
+    @apply text-xl font-semibold leading-snug;
+  }
+
+  h6 {
+    @apply text-lg font-semibold leading-normal;
+  }
+
+  p {
+    @apply text-base leading-relaxed;
+  }
+
+  small {
+    @apply text-sm leading-normal;
+  }
+}
+/* Custom animations */
+@keyframes neon-flicker {
+  0%,
+  100% {
+    text-shadow:
+      0 0 10px var(--neon-blue),
+      0 0 20px var(--neon-blue),
+      0 0 30px var(--neon-blue);
+  }
+  50% {
+    text-shadow:
+      0 0 5px var(--neon-blue),
+      0 0 10px var(--neon-blue),
+      0 0 15px var(--neon-blue);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 1;
+    text-shadow:
+      0 0 10px var(--neon-blue),
+      0 0 20px var(--neon-blue);
+  }
+  50% {
+    opacity: 0.7;
+    text-shadow:
+      0 0 5px var(--neon-blue),
+      0 0 10px var(--neon-blue);
+  }
+}
+
+.animate-neon-flicker {
+  animation: neon-flicker 2s infinite alternate;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Focus styles for keyboard navigation */
+button:focus,
+button:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 4px rgba(255, 255, 255, 0.3),
+    var(--shadow-neon-blue);
+}
