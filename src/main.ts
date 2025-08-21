@@ -1,28 +1,39 @@
 import { Snake } from './snake';
 import { Food } from './food';
+import { Renderer } from './renderer';
 import type { Position } from './types';
 
+type GameState = {
+  direction: Position;
+  score: number;
+  gameOver: boolean;
+  isPaused: boolean;
+  isRunning: boolean;
+};
+
+const INITIAL_DIRECTION: Position = { x: 0, y: 0 };
+
+const INITIAL_STATE: GameState = {
+  direction: { ...INITIAL_DIRECTION },
+  score: 0,
+  gameOver: false,
+  isPaused: false,
+  isRunning: false,
+};
+
+const GRID_SIZE = 20;
+
 class Game {
-  private canvas: HTMLCanvasElement;
-  private ctx: CanvasRenderingContext2D;
-  private gridSize = 20;
-  private tileCount: number;
+  private gridSize = GRID_SIZE;
+  private renderer: Renderer;
   private snake: Snake;
   private food: Food;
-  private state = {
-    direction: { x: 0, y: 0 },
-    score: 0,
-    gameOver: false,
-    isPaused: false,
-    isRunning: false,
-  };
+  private state: GameState = { ...INITIAL_STATE };
   private moveQueue: Position[] = [];
   private gameLoop: number | null = null;
 
   constructor() {
-    this.canvas = document.querySelector('canvas')!;
-    this.ctx = this.canvas.getContext('2d')!;
-    this.tileCount = this.canvas.width / this.gridSize;
+    this.renderer = new Renderer(this.gridSize);
     this.snake = new Snake(this.gridSize);
     this.food = new Food(this.gridSize);
 
@@ -33,8 +44,8 @@ class Game {
   private initializeGame(): void {
     this.loadHighScore();
     this.updateScore();
-    this.food.generate(this.snake.getBody(), this.tileCount);
-    this.draw();
+    this.food.generate(this.snake.getBody(), this.renderer.getTileCount());
+    this.renderer.render(this.snake, this.food);
   }
 
   private setupEventListeners(): void {
@@ -252,11 +263,7 @@ class Game {
 
   private restartGame(): void {
     this.state = {
-      direction: { x: 0, y: 0 },
-      score: 0,
-      gameOver: false,
-      isPaused: false,
-      isRunning: false,
+      ...INITIAL_STATE,
     };
 
     // Reset snake and clear move queue
@@ -277,8 +284,8 @@ class Game {
     pressKeyMessage.style.display = 'block';
 
     this.updateScore();
-    this.food.generate(this.snake.getBody(), this.tileCount);
-    this.draw();
+    this.food.generate(this.snake.getBody(), this.renderer.getTileCount());
+    this.renderer.render(this.snake, this.food);
 
     if (this.gameLoop) {
       clearInterval(this.gameLoop);
@@ -293,7 +300,7 @@ class Game {
     this.snake.move(this.state.direction);
     this.checkCollisions();
     this.checkFoodCollision();
-    this.draw();
+    this.renderer.render(this.snake, this.food);
   }
 
   private processQueuedMove(): void {
@@ -305,7 +312,7 @@ class Game {
 
   private checkCollisions(): void {
     // Wall collision
-    if (this.snake.checkWallCollision(this.tileCount)) {
+    if (this.snake.checkWallCollision(this.renderer.getTileCount())) {
       this.endGame();
       return;
     }
@@ -324,7 +331,7 @@ class Game {
       this.state.score += this.food.getScore();
       this.updateScore();
       this.snake.grow();
-      this.food.generate(this.snake.getBody(), this.tileCount);
+      this.food.generate(this.snake.getBody(), this.renderer.getTileCount());
     } else {
       this.snake.removeTail();
     }
@@ -386,35 +393,6 @@ class Game {
         'high-score',
       ) as HTMLSpanElement;
       highScoreSpan.textContent = this.state.score.toString();
-    }
-  }
-
-  private draw(): void {
-    this.clearCanvas();
-    this.drawGrid();
-    this.food.draw(this.ctx);
-    this.snake.draw(this.ctx);
-  }
-
-  private clearCanvas(): void {
-    this.ctx.fillStyle = '#050508';
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-  }
-
-  private drawGrid(): void {
-    this.ctx.strokeStyle = '#1a1a2e';
-    this.ctx.lineWidth = 0.5;
-
-    for (let i = 0; i < this.tileCount; i++) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(i * this.gridSize, 0);
-      this.ctx.lineTo(i * this.gridSize, this.canvas.height);
-      this.ctx.stroke();
-
-      this.ctx.beginPath();
-      this.ctx.moveTo(0, i * this.gridSize);
-      this.ctx.lineTo(this.canvas.width, i * this.gridSize);
-      this.ctx.stroke();
     }
   }
 }
