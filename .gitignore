@@ -33,3 +33,5 @@ dist-ssr
 
 .pnp.*
 .cache
+.playwright-mcp
+.claude/settings.local.json

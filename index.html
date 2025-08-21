@@ -7,7 +7,32 @@
     <title>SNAKE GAME</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <header><h1>Snake Game</h1></header>
+      <main>
+        <div class="score">
+          <div class="score">Score: <span id="score">0</span></div>
+          <div class="high-score">High: <span id="high-score">0</span></div>
+        </div>
+        <canvas width="400" height="400"></canvas>
+        <div class="game-controls">
+          <div class="control-info">Use WASD or Arrow Keys</div>
+          <div id="pressKeyMessage" class="press-key-message">
+            Press any key to play game
+          </div>
+          <button id="startBtn" class="start-btn">START GAME</button>
+          <button id="pauseBtn" class="pause-btn" style="display: none">
+            PAUSE
+          </button>
+        </div>
+        <div id="gameOver" class="game-over" style="display: none">
+          <h2>GAME OVER</h2>
+          <p>Final Score: <span id="finalScore">0</span></p>
+          <button id="restartBtn" class="restart-btn">PLAY AGAIN</button>
+        </div>
+      </main>
+      <footer><p>Hello World</p></footer>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
