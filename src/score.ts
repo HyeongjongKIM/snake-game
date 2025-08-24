@@ -15,9 +15,10 @@ export class Score {
     this.updateScoreDisplay();
   }
 
-  reset(): void {
+  init(): void {
     this.currentScore = 0;
     this.updateScoreDisplay();
+    this.updateHighScoreDisplay();
   }
 
   saveHighScore(): boolean {
@@ -44,8 +45,4 @@ export class Score {
     }
   }
 
-  initializeDisplay(): void {
-    this.updateScoreDisplay();
-    this.updateHighScoreDisplay();
-  }
 }

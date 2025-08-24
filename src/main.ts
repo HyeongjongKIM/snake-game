@@ -54,9 +54,8 @@ class Game {
 
   private initializeGame(): void {
     this.stopGame('ready');
-    this.score.reset();
-    this.score.initializeDisplay();
-    this.snake.reset();
+    this.score.init();
+    this.snake.init(this.renderer.getTileCount());
     this.food.generate(this.snake.getBody(), this.renderer.getTileCount());
     this.renderer.render(this.snake, this.food);
   }

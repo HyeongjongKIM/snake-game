@@ -1,10 +1,9 @@
 import type { Position } from './types';
 
-const INITIAL_POSITION: Position = { x: 10, y: 10 };
 const INITIAL_DIRECTION: Position = { x: 0, y: 0 };
 
 export class Snake {
-  private body: Position[] = [{ ...INITIAL_POSITION }];
+  private body: Position[] = [];
   private currentDirection: Position = { ...INITIAL_DIRECTION };
   private moveQueue: Position[] = [];
   private gridSize: number;
@@ -71,8 +70,14 @@ export class Snake {
     );
   }
 
-  reset(): void {
-    this.body = [{ ...INITIAL_POSITION }];
+  init(tileCount: number): void {
+    // Calculate center position dynamically
+    const centerPosition = {
+      x: Math.floor(tileCount / 2),
+      y: Math.floor(tileCount / 2),
+    };
+    
+    this.body = [centerPosition];
     this.currentDirection = { ...INITIAL_DIRECTION };
     this.moveQueue = [];
   }
