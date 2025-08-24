@@ -13,78 +13,44 @@
     />
     <link rel="stylesheet" href="/src/index.css" />
   </head>
-  <body class="flex justify-center items-center">
+  <body>
     <div
-      id="app"
-      class="text-center p-8 bg-[rgba(10,10,15,0.8)] rounded-3xl border-2 border-neon-blue shadow-neon-blue backdrop-blur-sm"
+      class="text-center p-8 bg-[rgba(10,10,15,0.8)] rounded-3xl border-2 border-neon-blue shadow-neon-blue backdrop-blur-sm max-w-fit"
     >
-      <header>
-        <h1 class="text-neon-blue animate-neon-flicker mb-4 tracking-wider">
-          Snake Game
-        </h1>
+      <header class="grid grid-cols-3 [&>*]:flex [&>*]:items-end">
+        <small class="text-neon-green text-shadow-neon-glow">
+          score:
+          <span id="score">0</span>
+        </small>
+        <div class="text-neon-blue animate-neon-flicker justify-center">
+          snake game
+        </div>
+        <small
+          class="text-neon-green text-shadow-neon-glow text-right justify-end"
+        >
+          high:
+          <span id="high-score">0</span>
+        </small>
       </header>
       <main>
-        <div class="flex justify-between mb-4 font-bold">
-          <div class="text-neon-green text-shadow-neon-glow">
-            Score:
-            <span id="score">0</span>
-          </div>
-          <div class="text-neon-green text-shadow-neon-glow">
-            High:
-            <span id="high-score">0</span>
-          </div>
-        </div>
-        <canvas
-          width="400"
-          height="400"
-          class="border-4 border-neon-pink rounded-xl shadow-neon-pink bg-darker-bg mx-auto mb-4"
-          aria-label="Snake Game Canvas"
-          role="img"
-        ></canvas>
-        <div class="mt-4">
-          <small class="text-neon-orange mb-4 text-shadow-neon-glow">
-            Use WASD or Arrow Keys
-          </small>
-          <h5
-            id="pressKeyMessage"
-            class="text-neon-blue font-bold my-4 animate-pulse-glow"
-          >
-            Press any key to play game
-          </h5>
-          <button
-            id="startBtn"
-            class="bg-transparent border-2 border-neon-green text-neon-green px-8 py-3 rounded-lg uppercase tracking-wide transition-all duration-300 mx-2 shadow-neon-green hover:bg-neon-green hover:text-dark-bg hover:shadow-neon-green-hover hover:-translate-y-0.5 active:translate-y-0"
-          >
-            START GAME
-          </button>
+        <div class="relative">
+          <canvas
+            width="400"
+            height="400"
+            class="border-4 border-neon-pink rounded-xl shadow-neon-pink bg-darker-bg mx-auto mb-4"
+            aria-label="Snake Game Canvas"
+            role="img"
+          ></canvas>
 
-          <button
-            id="pauseBtn"
-            class="bg-transparent border-2 border-neon-orange text-neon-orange px-8 py-3 rounded-lg uppercase tracking-wide hidden transition-all duration-300 mx-2 shadow-neon-orange hover:bg-neon-orange hover:text-dark-bg hover:shadow-neon-orange-hover hover:-translate-y-0.5 active:translate-y-0"
-          >
-            PAUSE
-          </button>
-        </div>
-        <div
-          id="gameOver"
-          class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-darker-bg border-4 border-neon-pink rounded-2xl p-8 shadow-neon-pink-strong z-[1000] max-w-sm w-full mx-4"
-          style="display: none"
-        >
-          <h2 class="text-neon-pink mb-4 text-shadow-neon-strong">GAME OVER</h2>
-          <p class="text-neon-blue mb-6">
-            Final Score:
-            <span id="finalScore">0</span>
-          </p>
-          <button
-            id="restartBtn"
-            class="bg-transparent border-2 border-neon-pink text-neon-pink px-8 py-3 rounded-lg uppercase tracking-wide transition-all duration-300 mx-2 shadow-neon-pink-button hover:bg-neon-pink hover:text-dark-bg hover:shadow-neon-pink-button-hover hover:-translate-y-0.5 active:translate-y-0"
-          >
-            PLAY AGAIN
-          </button>
+          <div
+            id="dialog"
+            class="absolute top-0 left-0 size-full flex-col items-center justify-center p-4 hidden"
+          ></div>
         </div>
       </main>
       <footer></footer>
     </div>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

@@ -20,23 +20,13 @@
 
   /* Custom shadows */
   --shadow-neon-blue: 0 0 20px #00ffff, inset 0 0 20px rgba(0, 255, 255, 0.1);
-  --shadow-neon-blue-glow:
-    0 0 30px #00ffff, inset 0 0 30px rgba(0, 255, 255, 0.1);
   --shadow-neon-pink: 0 0 30px #ff0080, inset 0 0 30px rgba(255, 0, 128, 0.1);
-  --shadow-neon-pink-strong:
-    0 0 40px #ff0080, inset 0 0 40px rgba(255, 0, 128, 0.1);
   --shadow-neon-green: 0 0 15px rgba(0, 255, 65, 0.3);
   --shadow-neon-green-hover:
     0 0 25px #00ff41, inset 0 0 25px rgba(0, 255, 65, 0.2);
-  --shadow-neon-orange: 0 0 15px rgba(255, 128, 0, 0.3);
-  --shadow-neon-orange-hover:
-    0 0 25px #ff8000, inset 0 0 25px rgba(255, 128, 0, 0.2);
-  --shadow-neon-pink-button: 0 0 15px rgba(255, 0, 128, 0.3);
-  --shadow-neon-pink-button-hover: 0 0 25px rgba(255, 0, 128, 0.2);
 
   /* Custom text shadows */
   --text-shadow-neon-glow: 0 0 10px currentColor;
-  --text-shadow-neon-strong: 0 0 10px currentColor, 0 0 20px currentColor;
 }
 
 @layer base {
@@ -48,12 +38,11 @@
     @apply text-base antialiased font-['Orbitron'];
   }
 
-  /* Body styles */
+  /*  */
   body {
-    @apply bg-dark-bg bg-gradient-to-br from-purple-900/30 via-pink-900/30 to-blue-900/20 min-h-screen overflow-hidden w-full h-screen;
+    @apply flex justify-center items-center p-10 bg-dark-bg bg-gradient-to-br from-purple-900/30 via-pink-900/30 to-blue-900/20 min-h-screen overflow-hidden w-full h-screen text-center;
   }
 
-  /* Default typography styles */
   h1 {
     @apply text-6xl font-black leading-tight;
   }
@@ -86,8 +75,8 @@
     @apply text-sm leading-normal;
   }
 }
-/* Custom animations */
-@keyframes neon-flicker {
+
+@keyframes neon-flicker-blue {
   0%,
   100% {
     text-shadow:
@@ -103,31 +92,10 @@
   }
 }
 
-@keyframes pulse-glow {
-  0%,
-  100% {
-    opacity: 1;
-    text-shadow:
-      0 0 10px var(--neon-blue),
-      0 0 20px var(--neon-blue);
-  }
-  50% {
-    opacity: 0.7;
-    text-shadow:
-      0 0 5px var(--neon-blue),
-      0 0 10px var(--neon-blue);
-  }
-}
-
 .animate-neon-flicker {
-  animation: neon-flicker 2s infinite alternate;
+  animation: neon-flicker-blue 2s infinite alternate;
 }
 
-.animate-pulse-glow {
-  animation: pulse-glow 2s infinite;
-}
-
-/* Focus styles for keyboard navigation */
 button:focus,
 button:focus-visible {
   outline: none;

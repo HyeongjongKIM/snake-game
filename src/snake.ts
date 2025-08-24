@@ -1,14 +1,16 @@
 import type { Position } from './types';
 
 const INITIAL_POSITION: Position = { x: 10, y: 10 };
+const INITIAL_DIRECTION: Position = { x: 0, y: 0 };
 
 export class Snake {
-  private body: Position[];
+  private body: Position[] = [{ ...INITIAL_POSITION }];
+  private currentDirection: Position = { ...INITIAL_DIRECTION };
+  private moveQueue: Position[] = [];
   private gridSize: number;
 
   constructor(gridSize: number) {
     this.gridSize = gridSize;
-    this.body = [{ ...INITIAL_POSITION }];
   }
 
   getBody(): Position[] {
@@ -19,26 +21,43 @@ export class Snake {
     return this.body[0];
   }
 
-  move(direction: Position): void {
+  getDirection(): Position {
+    return { ...this.currentDirection };
+  }
+
+  setDirection(direction: Position | null): void {
+    direction = direction ?? this.currentDirection;
+    // Ensure we have a valid direction (not { x: 0, y: 0 })
+    if (direction.x === 0 && direction.y === 0) {
+      direction = this.getRandomDirection();
+    }
+    this.currentDirection = { ...direction };
+  }
+
+  move(): void {
+    // Process the next move from the queue
+    if (this.moveQueue.length > 0) {
+      this.currentDirection = this.moveQueue.shift()!;
+    }
+
     const head = { ...this.body[0] };
-    head.x += direction.x;
-    head.y += direction.y;
+    head.x += this.currentDirection.x;
+    head.y += this.currentDirection.y;
     this.body.unshift(head);
   }
 
-  grow(): void {
-    // Don't remove tail when growing (food was eaten)
-    // The move() method already added a new head
-  }
-
   removeTail(): void {
-    this.body.pop();
+    // Only remove tail if body has more than 1 segment to prevent empty array
+    if (this.body.length > 1) {
+      this.body.pop();
+    }
   }
 
   checkSelfCollision(): boolean {
     const head = this.body[0];
     for (let i = 1; i < this.body.length; i++) {
       if (head.x === this.body[i].x && head.y === this.body[i].y) {
+        console.log('checkSelfCollision');
         return true;
       }
     }
@@ -54,6 +73,23 @@ export class Snake {
 
   reset(): void {
     this.body = [{ ...INITIAL_POSITION }];
+    this.currentDirection = { ...INITIAL_DIRECTION };
+    this.moveQueue = [];
+  }
+
+  // Move queue management methods
+  queueDirection(direction: Position): void {
+    // Limit queue size to prevent excessive queuing
+    if (this.moveQueue.length < 2) {
+      this.moveQueue.push(direction);
+    }
+  }
+
+  getCurrentDirection(): Position {
+    // Get current direction (either from queue or current direction)
+    return this.moveQueue.length > 0
+      ? this.moveQueue[this.moveQueue.length - 1]
+      : this.currentDirection;
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
@@ -90,5 +126,17 @@ export class Snake {
 
       ctx.restore();
     });
+  }
+
+  private getRandomDirection(): Position {
+    const directions: Position[] = [
+      { x: 0, y: -1 }, // Up
+      { x: 0, y: 1 }, // Down
+      { x: -1, y: 0 }, // Left
+      { x: 1, y: 0 }, // Right
+    ];
+
+    const randomIndex = Math.floor(Math.random() * directions.length);
+    return directions[randomIndex];
   }
 }

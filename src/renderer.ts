@@ -12,7 +12,12 @@ export class Renderer {
 
   constructor(gridSize: number) {
     this.gridSize = gridSize;
-    this.canvas = document.querySelector('canvas')!;
+    const canvas = document.querySelector('canvas');
+    if (!canvas) {
+      throw new Error('No HTML Canvas Element!');
+    }
+
+    this.canvas = canvas;
     this.ctx = this.canvas.getContext('2d')!;
     this.tileCount = this.canvas.width / gridSize;
   }
