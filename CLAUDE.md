@@ -60,32 +60,65 @@ This is a TypeScript Vite project for a Snake Game. The project uses modern web 
 
 ```
 src/
-├── main.ts         # Main application entry point
-├── counter.ts      # Counter functionality (example)
-├── style.css       # Global styles
-├── typescript.svg  # TypeScript logo asset
+├── main.ts         # Main Game class and application entry point
+├── snake.ts        # Snake entity with movement and collision logic
+├── food.ts         # Food entity with generation and scoring
+├── renderer.ts     # Canvas rendering system
+├── score.ts        # Score tracking and persistence
+├── dialog.ts       # Game state dialogs (pause/game over)
+├── message.ts      # User notification system
+├── types.ts        # TypeScript type definitions
+├── index.css       # Global styles with neon theme
 └── vite-env.d.ts   # Vite environment type definitions
 ```
 
-### Future Structure (as project grows)
+### Architecture Overview
 
-```
-src/
-├── game/           # Game-specific logic and components
-├── utils/          # Utility functions
-├── types/          # TypeScript type definitions
-├── constants/      # Game constants (speed, colors, etc.)
-├── styles/         # CSS files and styling
-└── assets/         # Static assets (images, sounds)
-```
+The project follows a **Component-Based Entity System** with clear separation of concerns:
+
+- **Game Class** (`main.ts`): Central game loop, state management, and coordination
+- **Entity Classes**: Snake, Food - independent game entities
+- **System Classes**: Renderer, Score, Dialog - specialized functionality
+- **Type Definitions** (`types.ts`): Shared interfaces and types
+- **Constants**: Game configuration (speed, grid size, key mappings)
 
 ### Naming Conventions
 
-- **Files**: Use kebab-case for file names (`user-profile.component.ts`)
-- **Components**: Use PascalCase for component names (`UserProfile`)
-- **Functions**: Use camelCase for function names (`getUserData`)
-- **Constants**: Use UPPER_SNAKE_CASE for constants (`API_BASE_URL`)
-- **Types/Interfaces**: Use PascalCase with descriptive names (`UserData`, `ApiResponse`)
+- **Files**: Use kebab-case for file names (`snake.ts`, `dialog.ts`)
+- **Classes**: Use PascalCase for class names (`Game`, `Snake`, `Dialog`)
+- **Functions**: Use camelCase for function names (`handleKeyPress`, `checkCollision`)
+- **Constants**: Use UPPER_SNAKE_CASE for constants (`GAME_SPEED`, `GRID_SIZE`)
+- **Types**: Use PascalCase with descriptive names (`GameState`, `Position`, `DialogOptions`)
+
+## Game Development Guidelines
+
+### Game State Management
+
+The game uses a simple state machine with four states:
+- `'ready'` - Initial state, waiting for user input
+- `'playing'` - Active gameplay
+- `'paused'` - Game paused by user
+- `'end'` - Game over
+
+### Key Input System
+
+- **Movement Keys**: Arrow keys + WASD
+- **Pause/Resume**: Spacebar (only during gameplay)
+- **Direction Validation**: Prevents 180-degree turns
+- **Input Queuing**: Allows buffering of direction changes
+
+### Entity System
+
+- **Snake**: Body segments, movement, collision detection
+- **Food**: Random generation, collision detection, scoring
+- **Renderer**: Canvas drawing, entity visualization
+- **Score**: Current score, high score persistence
+
+### Dialog System
+
+Two dialog types with auto-focus:
+- **Pause Dialog**: Resume button with keyboard support
+- **Game Over Dialog**: Restart button with keyboard support
 
 ## TypeScript Guidelines
 
