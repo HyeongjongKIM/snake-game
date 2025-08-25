@@ -3,6 +3,8 @@ import { Food } from './food';
 import { Renderer } from './renderer';
 import { Score } from './score';
 import { Dialog } from './dialog';
+import { SettingsDialog } from './settings-dialog';
+import { GameSettings } from './settings';
 import type { Position } from './types';
 
 type GameState = 'ready' | 'playing' | 'paused' | 'end';
@@ -30,26 +32,37 @@ const KEY_MAPPINGS: Record<string, DirectionKey> = {
 };
 
 class Game {
-  private renderer: Renderer;
-  private snake: Snake;
-  private food: Food;
-  private score: Score;
-  private dialog: Dialog;
+  private renderer!: Renderer;
+  private snake!: Snake;
+  private food!: Food;
+  private score!: Score;
+  private dialog!: Dialog;
+  private settingsDialog!: SettingsDialog;
+  private settings: GameSettings;
 
   private gridSize = GRID_SIZE;
+  private canvasSize = 400; // Canvas size from HTML
 
   private state: GameState = 'ready';
   private gameLoop: number | null = null;
 
   constructor() {
+    this.settings = new GameSettings();
+    this.initializeComponents();
+    this.setupEventListeners();
+    this.initializeGame();
+  }
+
+  private initializeComponents(): void {
+    const gridOption = this.settings.getGridSizeOption();
+    this.gridSize = this.canvasSize / gridOption.tileCount;
+
     this.renderer = new Renderer(this.gridSize);
     this.snake = new Snake(this.gridSize);
     this.food = new Food(this.gridSize);
     this.score = new Score();
     this.dialog = new Dialog();
-
-    this.initializeGame();
-    this.setupEventListeners();
+    this.settingsDialog = new SettingsDialog();
   }
 
   private initializeGame(): void {
@@ -64,7 +77,13 @@ class Game {
   }
 
   private handleKeyPress(event: KeyboardEvent): void {
-    if (this.state === 'end') {
+    if (this.state === 'end' || this.settingsDialog.isSettingsOpen()) {
+      return;
+    }
+
+    // Handle settings menu
+    if (event.key === 'Escape') {
+      this.showSettings();
       return;
     }
 
@@ -151,6 +170,41 @@ class Game {
         this.initializeGame();
       },
     });
+  }
+
+  private showSettings(): void {
+    // Playing 중이면 게임 루프만 중단 (상태는 유지)
+    if (this.state === 'playing' && this.gameLoop) {
+      clearInterval(this.gameLoop);
+      this.gameLoop = null;
+    }
+
+    if (this.state === 'paused') {
+      this.dialog.hide();
+    }
+
+    this.settingsDialog.show({
+      currentGridOption: this.settings.getGridSizeOption(),
+      onBack: () => {
+        this.settingsDialog.hide();
+        // Playing 중이었다면 게임 재개
+        if (this.state === 'playing') {
+          this.startGame();
+        } else if (this.state === 'paused') {
+          this.togglePause();
+        }
+      },
+      onApply: (option) => {
+        this.settings.setGridSizeOption(option);
+        this.settingsDialog.hide();
+        this.restartWithNewSettings();
+      },
+    });
+  }
+
+  private restartWithNewSettings(): void {
+    this.initializeComponents();
+    this.initializeGame();
   }
 
   private update(): void {

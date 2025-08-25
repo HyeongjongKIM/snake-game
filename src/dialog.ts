@@ -1,13 +1,11 @@
 interface PauseDialogOptions {
   state: 'paused';
-  onRestart?: never;
   onResume: () => void;
 }
 
 interface GameOverDialogOptions {
   state: 'end';
   onRestart: () => void;
-  onResume?: never;
 }
 
 type DialogOptions = PauseDialogOptions | GameOverDialogOptions;
@@ -24,7 +22,7 @@ export class Dialog {
     this.createDialog(options);
     this.overlay.classList.remove('hidden');
     this.overlay.classList.add('flex');
-    
+
     if (this.currentButton) {
       this.currentButton.focus();
     }
@@ -40,7 +38,7 @@ export class Dialog {
   private createDialog(options: DialogOptions): void {
     if (options.state === 'end') {
       this.createGameOverDialog(options.onRestart);
-    } else {
+    } else if (options.state === 'paused') {
       this.createPausedDialog(options.onResume);
     }
   }
@@ -66,7 +64,7 @@ export class Dialog {
       'restartButton',
     ) as HTMLButtonElement;
     restartButton.addEventListener('click', onRestart);
-    
+
     this.currentButton = restartButton;
   }
 
@@ -86,7 +84,7 @@ export class Dialog {
       'resumeButton',
     ) as HTMLButtonElement;
     resumeButton.addEventListener('click', onResume);
-    
+
     this.currentButton = resumeButton;
   }
 }
