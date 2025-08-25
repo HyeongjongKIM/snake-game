@@ -54,7 +54,7 @@
   </g>
 
   <!-- SNAKE -->
-  <g fill="#86FE87" stroke="#25b048ff"> >
+  <g fill="#86FE87" stroke="#09521bff"> >
     <rect x="10" y="10" width="10" height="10"/>
     <rect x="20" y="10" width="10" height="10"/>
     <rect x="30" y="10" width="10" height="10"/>

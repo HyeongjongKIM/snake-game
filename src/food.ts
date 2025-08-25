@@ -42,10 +42,10 @@ export class Food {
   draw(ctx: CanvasRenderingContext2D): void {
     // Draw glowing food
     ctx.save();
-    ctx.shadowColor = '#ff0080';
-    ctx.shadowBlur = 15;
+    ctx.shadowColor = '#ff6600';
+    ctx.shadowBlur = 20;
 
-    ctx.fillStyle = '#ff4444';
+    ctx.fillStyle = '#ff8800';
     ctx.fillRect(
       this.position.x * this.gridSize + 2,
       this.position.y * this.gridSize + 2,
@@ -54,7 +54,7 @@ export class Food {
     );
 
     // Add highlight
-    ctx.fillStyle = '#ff8888';
+    ctx.fillStyle = '#ffaa44';
     ctx.fillRect(
       this.position.x * this.gridSize + 4,
       this.position.y * this.gridSize + 4,

@@ -47,13 +47,13 @@ export class Dialog {
     this.overlay.innerHTML = `
       <div class="flex flex-col justify-center items-center gap-4">
         <h3
-          class="grow overflow-auto flex justify-center items-center text-neon-green"
+          class="grow flex justify-center items-center"
         >
           Game Over
         </h3>
         <button
           id="restartButton"
-          class="backdrop-blur-sm border-2 border-neon-green text-neon-green px-6 py-3 rounded-lg uppercase tracking-wide transition-all duration-300 shadow-neon-green hover:bg-neon-green hover:text-dark-bg hover:shadow-neon-green-hover hover:-translate-y-0.5 active:translate-y-0"
+          class="backdrop-blur-sm border-1 px-6 py-3 uppercase tracking-wide transition-all duration-300"
         >
           Restart
         </button>
@@ -73,7 +73,7 @@ export class Dialog {
       <div class="flex flex-col justify-center items-center gap-4">
         <button
           id="resumeButton"
-          class="backdrop-blur-sm border-2 border-neon-green text-neon-green px-6 py-3 rounded-lg uppercase tracking-wide transition-all duration-300 shadow-neon-green hover:bg-neon-green hover:text-dark-bg hover:shadow-neon-green-hover hover:-translate-y-0.5 active:translate-y-0"
+          class="backdrop-blur-sm border-1 px-6 py-3 uppercase tracking-wide transition-all duration-300 hover:bg-stone-400 hover:text-black"
         >
           Resume
         </button>

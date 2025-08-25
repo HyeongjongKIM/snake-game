@@ -74,6 +74,10 @@ class Game {
   }
   private setupEventListeners(): void {
     document.addEventListener('keydown', this.handleKeyPress.bind(this));
+    const settings = document.getElementById('settings');
+    if (settings) {
+      settings.addEventListener('click', this.showSettings.bind(this));
+    }
   }
 
   private handleKeyPress(event: KeyboardEvent): void {

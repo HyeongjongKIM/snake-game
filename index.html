@@ -8,49 +8,45 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/src/index.css" />
   </head>
   <body>
-    <div
-      class="text-center p-8 bg-[rgba(10,10,15,0.8)] rounded-3xl border-2 border-neon-blue shadow-neon-blue backdrop-blur-sm max-w-fit"
-    >
-      <header class="grid grid-cols-3 [&>*]:flex [&>*]:items-end">
-        <small class="text-neon-green text-shadow-neon-glow">
+    <div>
+      <header class="grid grid-cols-3 [&>*]:flex [&>*]:items-end mb-1">
+        <small>
           score:
           <span id="score">0</span>
         </small>
-        <div class="text-neon-blue animate-neon-flicker justify-center">
-          snake game
-        </div>
-        <small
-          class="text-neon-green text-shadow-neon-glow text-right justify-end"
-        >
+        <small class="justify-center">snake game</small>
+        <small class="text-right justify-end">
           high:
           <span id="high-score">0</span>
         </small>
       </header>
-      <main>
+      <main class="flex flex-col">
         <div class="relative">
           <canvas
             width="400"
             height="400"
-            class="border-4 border-neon-pink rounded-xl shadow-neon-pink bg-darker-bg mx-auto mb-4"
+            class="border-1 bg-stone-600 mx-auto"
             aria-label="Snake Game Canvas"
             role="img"
           ></canvas>
-
           <div
             id="dialog"
             class="absolute top-0 left-0 size-full flex-col items-center justify-center p-4 hidden"
           ></div>
         </div>
+        <div class="flex items-center justify-end gap-2">
+          <div id="info" class="p-1 cursor-default hover:underline">?</div>
+          <div id="settings" class="p-1 cursor-default hover:underline">*</div>
+        </div>
       </main>
       <footer class="flex justify-center gap-4 mt-4"></footer>
     </div>
-
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

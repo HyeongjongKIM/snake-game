@@ -51,8 +51,8 @@ export class Renderer {
    * Draws the grid lines on the canvas
    */
   private drawGrid(): void {
-    this.ctx.strokeStyle = '#1a1a2e';
-    this.ctx.lineWidth = 0.5;
+    this.ctx.strokeStyle = '#86fe87';
+    this.ctx.lineWidth = 0.08;
 
     for (let i = 0; i < this.tileCount; i++) {
       // Vertical lines

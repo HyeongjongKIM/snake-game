@@ -21,7 +21,7 @@ export class SettingsDialog {
       this.overlay = document.createElement('div');
       this.overlay.id = 'settingsDialog';
       this.overlay.className =
-        'fixed inset-0 backdrop-blur-sm justify-center items-center z-50 hidden';
+        'fixed inset-0 backdrop-blur-sm bg-[rgba(0,0,0,0.4)] justify-center items-center z-50 hidden';
       document.body.appendChild(this.overlay);
     }
   }
@@ -56,15 +56,15 @@ export class SettingsDialog {
     const optionsHTML = this.options
       .map(
         (option: GridSizeOption, index: number) => `
-        <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg border-2 ${
+        <label class="flex items-center gap-3 cursor-pointer p-3 border-2 ${
           index === this.selectedIndex
-            ? 'border-neon-blue'
-            : 'border-gray-600 hover:border-neon-blue/50'
+            ? 'border-stone-400'
+            : 'border-stone-600 hover:border-stone-400'
         } transition-colors" data-index="${index}">
           <div class="w-4 h-4 rounded-full border-2 ${
             index === this.selectedIndex
-              ? 'border-neon-blue'
-              : 'border-gray-600'
+              ? 'border-stone-400'
+              : 'border-stone-600'
           } transition-colors flex items-center justify-center">
             ${
               index === this.selectedIndex
@@ -72,41 +72,35 @@ export class SettingsDialog {
                 : ''
             }
           </div>
-          <span class="text-white">${option.label}</span>
+          <span>${option.label}</span>
         </label>
       `,
       )
       .join('');
 
     this.overlay.innerHTML = `
-      <div class="flex flex-col justify-center items-center gap-6 backdrop-blur-sm p-8 rounded-2xl border-2 border-neon-blue max-w-md w-full">
-        <h3 class="text-2xl text-neon-blue font-bold text-center">
+      <div class="flex flex-col justify-center items-center gap-6 backdrop-blur-sm p-8 border-1 max-w-md w-full">
+        <h3 class="text-center">
           Game Settings
         </h3>
         
         <div class="w-full">
-          <h4 class="text-lg text-white mb-4 text-center">Grid Size</h4>
+          <h4 class="text-lg mb-4 text-center">Grid Size</h4>
           <div class="space-y-3" id="optionsList">
             ${optionsHTML}
           </div>
         </div>
 
         <div class="flex gap-4 justify-center w-full">
-          <button
-            id="backButton"
-            class="backdrop-blur-sm border-2 border-gray-500 text-gray-300 px-6 py-3 rounded-lg uppercase tracking-wide transition-all duration-300 hover:border-gray-400 hover:text-white hover:-translate-y-0.5 active:translate-y-0"
-          >
+          <button id="backButton">
             Back<br>(ESC)
           </button>
-          <button
-            id="applyButton"
-            class="backdrop-blur-sm border-2 border-neon-green text-neon-green px-6 py-3 rounded-lg uppercase tracking-wide transition-all duration-300 shadow-neon-green hover:bg-neon-green hover:text-dark-bg hover:shadow-neon-green-hover hover:-translate-y-0.5 active:translate-y-0"
-          >
+          <button id="applyButton">
             Apply & Restart<br>(ENTER)
           </button>
         </div>
 
-        <div class="text-sm text-gray-400 text-center">
+        <div class="text-sm text-center text-stone-500">
           Use ↑↓ arrows to navigate • Enter to apply • Esc to go back
         </div>
       </div>
@@ -203,20 +197,20 @@ export class SettingsDialog {
       const isSelected = index === this.selectedIndex;
 
       // Update label styling
-      label.className = `flex items-center gap-3 cursor-pointer p-3 rounded-lg border-2 ${
+      label.className = `flex items-center gap-3 cursor-pointer p-3 border-2 ${
         isSelected
-          ? 'border-neon-blue bg-neon-blue/10'
-          : 'border-gray-600 hover:border-neon-blue/50'
+          ? 'border-stone-400'
+          : 'border-stone-600 hover:border-stone-400'
       } transition-colors`;
 
       // Update radio button visual
       const radioVisual = label.querySelector('div');
       if (radioVisual) {
         radioVisual.className = `w-4 h-4 rounded-full border-2 ${
-          isSelected ? 'border-neon-blue bg-neon-blue' : 'border-gray-600'
+          isSelected ? 'border-stone-400' : 'border-stone-600'
         } transition-colors flex items-center justify-center`;
         radioVisual.innerHTML = isSelected
-          ? '<div class="w-2 h-2 rounded-full bg-dark-bg"></div>'
+          ? '<div class="w-2 h-2 rounded-full bg-black"></div>'
           : '';
       }
     });

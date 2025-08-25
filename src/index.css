@@ -1,70 +1,40 @@
 @import 'tailwindcss';
 
-/* Custom CSS variables for neon colors */
-:root {
-  --neon-blue: #00ffff;
-  --neon-pink: #ff0080;
-  --neon-green: #00ff41;
-  --neon-orange: #ff8000;
-  --dark-bg: #0a0a0f;
-  --darker-bg: #050508;
-}
-
-@theme {
-  --color-neon-blue: #00ffff;
-  --color-neon-pink: #ff0080;
-  --color-neon-green: #00ff41;
-  --color-neon-orange: #ff8000;
-  --color-dark-bg: #0a0a0f;
-  --color-darker-bg: #050508;
-
-  /* Custom shadows */
-  --shadow-neon-blue: 0 0 20px #00ffff, inset 0 0 20px rgba(0, 255, 255, 0.1);
-  --shadow-neon-pink: 0 0 30px #ff0080, inset 0 0 30px rgba(255, 0, 128, 0.1);
-  --shadow-neon-green: 0 0 15px rgba(0, 255, 65, 0.3);
-  --shadow-neon-green-hover:
-    0 0 25px #00ff41, inset 0 0 25px rgba(0, 255, 65, 0.2);
-
-  /* Custom text shadows */
-  --text-shadow-neon-glow: 0 0 10px currentColor;
-}
-
 @layer base {
   * {
     @apply box-border;
   }
 
   html {
-    @apply text-base antialiased font-['Orbitron'];
+    @apply text-base antialiased font-['IBM_Plex_Mono'];
   }
 
-  /*  */
   body {
-    @apply flex justify-center items-center p-10 bg-dark-bg bg-gradient-to-br from-purple-900/30 via-pink-900/30 to-blue-900/20 min-h-screen overflow-hidden w-full h-screen text-center;
+    @apply flex bg-black bg-gradient-to-br from-stone-800/40 via-stone-700/20 to-stone-900/30  justify-center items-center p-10 min-h-screen overflow-hidden w-full h-screen text-center text-stone-400;
   }
 
   h1 {
-    @apply text-6xl font-black leading-tight;
+    @apply text-6xl leading-tight;
   }
 
   h2 {
-    @apply text-4xl font-bold leading-tight;
+    @apply text-4xl leading-tight;
   }
 
   h3 {
-    @apply text-3xl font-bold leading-tight;
+    @apply text-3xl leading-tight;
   }
 
   h4 {
-    @apply text-2xl font-semibold leading-snug;
+    @apply text-2xl leading-snug;
   }
 
   h5 {
-    @apply text-xl font-semibold leading-snug;
+    @apply text-xl leading-snug;
   }
 
   h6 {
-    @apply text-lg font-semibold leading-normal;
+    @apply text-lg leading-normal;
   }
 
   p {
@@ -74,32 +44,13 @@
   small {
     @apply text-sm leading-normal;
   }
-}
 
-@keyframes neon-flicker-blue {
-  0%,
-  100% {
-    text-shadow:
-      0 0 10px var(--neon-blue),
-      0 0 20px var(--neon-blue),
-      0 0 30px var(--neon-blue);
+  button {
+    @apply backdrop-blur-sm border-1 px-6 py-3 uppercase tracking-wide transition-all duration-300 hover:bg-stone-400 hover:text-black;
   }
-  50% {
-    text-shadow:
-      0 0 5px var(--neon-blue),
-      0 0 10px var(--neon-blue),
-      0 0 15px var(--neon-blue);
-  }
-}
-
-.animate-neon-flicker {
-  animation: neon-flicker-blue 2s infinite alternate;
 }
 
 button:focus,
 button:focus-visible {
-  outline: none;
-  box-shadow:
-    0 0 0 4px rgba(255, 255, 255, 0.3),
-    var(--shadow-neon-blue);
+  @apply outline-0;
 }

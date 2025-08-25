@@ -68,7 +68,7 @@ src/
 ├── dialog.ts       # Game state dialogs (pause/game over)
 ├── message.ts      # User notification system
 ├── types.ts        # TypeScript type definitions
-├── index.css       # Global styles with neon theme
+├── index.css       # Global styles with minimal stone theme
 └── vite-env.d.ts   # Vite environment type definitions
 ```
 
@@ -89,6 +89,48 @@ The project follows a **Component-Based Entity System** with clear separation of
 - **Functions**: Use camelCase for function names (`handleKeyPress`, `checkCollision`)
 - **Constants**: Use UPPER_SNAKE_CASE for constants (`GAME_SPEED`, `GRID_SIZE`)
 - **Types**: Use PascalCase with descriptive names (`GameState`, `Position`, `DialogOptions`)
+
+## Design System
+
+### Visual Theme
+
+The game uses a **minimal stone aesthetic** with a focus on readability and modern design:
+
+- **Color Palette**: Stone/neutral tones with subtle gradients
+- **Typography**: IBM Plex Mono for consistent monospace appearance
+- **Visual Style**: Clean, minimal design without distracting effects
+
+### Color Guidelines
+
+**Background Colors**:
+- Primary background: Black with stone gradient (`from-stone-800/40 via-stone-700/20 to-stone-900/30`)
+- Text colors: Stone-400 for UI elements, Stone-300 for less prominent text
+
+**Game Entity Colors**:
+- **Snake**: Stone tones with subtle glow effects
+  - Head: `#d6d3d1` (stone-300) with `#f5f5f4` highlight
+  - Body: `#a8a29e` (stone-400) with `#e7e5e4` highlight
+- **Food**: Warm orange-amber tones for contrast
+  - Primary: `#ea580c` (orange-600) with `#fb923c` highlight
+  - Glow: `#d97706` (amber-600) for subtle emphasis
+
+**UI Components**:
+- Borders: Stone-600 default, Stone-400 for active/hover states
+- Buttons: Stone-400 background on hover with black text
+- Grid lines: Subtle stone grid with minimal opacity
+
+### Typography
+
+- **Primary Font**: IBM Plex Mono - consistent, readable monospace
+- **Font Weights**: Regular (400) for body text, no bold weights to maintain minimalism
+- **Text Hierarchy**: Size-based hierarchy without weight variation
+
+### Design Principles
+
+1. **Minimalism**: Clean design without unnecessary visual noise
+2. **Readability**: High contrast ratios and clear typography
+3. **Consistency**: Unified color palette and spacing throughout
+4. **Accessibility**: Consider color contrast and keyboard navigation
 
 ## Game Development Guidelines
 
