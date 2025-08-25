@@ -2,8 +2,8 @@ import { Snake } from './snake';
 import { Food } from './food';
 import { Renderer } from './renderer';
 import { Score } from './score';
-import { Dialog } from './dialog';
-import { SettingsDialog } from './settings-dialog';
+import { GameStateDialog } from './game-state-dialog';
+import { FullScreenDialog } from './fullscreen-dialog';
 import { GameSettings } from './settings';
 import type { Position } from './types';
 
@@ -36,8 +36,8 @@ class Game {
   private snake!: Snake;
   private food!: Food;
   private score!: Score;
-  private dialog!: Dialog;
-  private settingsDialog!: SettingsDialog;
+  private gameStateDialog!: GameStateDialog;
+  private fullScreenDialog!: FullScreenDialog;
   private settings: GameSettings;
 
   private gridSize = GRID_SIZE;
@@ -61,8 +61,8 @@ class Game {
     this.snake = new Snake(this.gridSize);
     this.food = new Food(this.gridSize);
     this.score = new Score();
-    this.dialog = new Dialog();
-    this.settingsDialog = new SettingsDialog();
+    this.gameStateDialog = new GameStateDialog();
+    this.fullScreenDialog = new FullScreenDialog();
   }
 
   private initializeGame(): void {
@@ -78,10 +78,14 @@ class Game {
     if (settings) {
       settings.addEventListener('click', this.showSettings.bind(this));
     }
+    const info = document.getElementById('info');
+    if (info) {
+      info.addEventListener('click', this.showInfo.bind(this));
+    }
   }
 
   private handleKeyPress(event: KeyboardEvent): void {
-    if (this.state === 'end' || this.settingsDialog.isSettingsOpen()) {
+    if (this.state === 'end' || this.fullScreenDialog.isDialogOpen()) {
       return;
     }
 
@@ -134,7 +138,7 @@ class Game {
 
   private startGame(): void {
     this.state = 'playing';
-    this.dialog.hide();
+    this.gameStateDialog.hide();
     this.gameLoop = setInterval(() => this.update(), GAME_SPEED);
   }
 
@@ -145,10 +149,10 @@ class Game {
       this.gameLoop = null;
     }
     if (state === 'paused') {
-      this.dialog.show({
+      this.gameStateDialog.show({
         state: 'paused',
         onResume: () => {
-          this.dialog.hide();
+          this.gameStateDialog.hide();
           this.togglePause();
         },
       });
@@ -167,10 +171,10 @@ class Game {
     this.state = 'end';
     this.stopGame('end');
     this.score.saveHighScore();
-    this.dialog.show({
+    this.gameStateDialog.show({
       state: 'end',
       onRestart: () => {
-        this.dialog.hide();
+        this.gameStateDialog.hide();
         this.initializeGame();
       },
     });
@@ -184,13 +188,14 @@ class Game {
     }
 
     if (this.state === 'paused') {
-      this.dialog.hide();
+      this.gameStateDialog.hide();
     }
 
-    this.settingsDialog.show({
+    this.fullScreenDialog.show({
+      type: 'settings',
       currentGridOption: this.settings.getGridSizeOption(),
       onBack: () => {
-        this.settingsDialog.hide();
+        this.fullScreenDialog.hide();
         // Playing 중이었다면 게임 재개
         if (this.state === 'playing') {
           this.startGame();
@@ -200,8 +205,11 @@ class Game {
       },
       onApply: (option) => {
         this.settings.setGridSizeOption(option);
-        this.settingsDialog.hide();
+        this.fullScreenDialog.hide();
         this.restartWithNewSettings();
+      },
+      onScreenshot: () => {
+        this.takeScreenshot();
       },
     });
   }
@@ -238,6 +246,95 @@ class Game {
     } else {
       this.snake.removeTail();
     }
+  }
+
+  private showInfo(): void {
+    // Playing 중이면 게임 루프만 중단 (상태는 유지)
+    const wasPlaying = this.state === 'playing';
+    if (wasPlaying && this.gameLoop) {
+      clearInterval(this.gameLoop);
+      this.gameLoop = null;
+    }
+
+    if (this.state === 'paused') {
+      this.gameStateDialog.hide();
+    }
+
+    this.fullScreenDialog.show({
+      type: 'info',
+      onClose: () => {
+        this.fullScreenDialog.hide();
+        // Playing 중이었다면 게임 재개
+        if (wasPlaying) {
+          this.startGame();
+        } else if (this.state === 'paused') {
+          this.togglePause();
+        }
+      },
+    });
+  }
+
+  private takeScreenshot(): void {
+    // Create a temporary canvas to combine header and game canvas
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    if (!tempCanvas || !tempCtx) return;
+
+    const gameCanvas = document.querySelector('canvas') as HTMLCanvasElement;
+    const header = document.querySelector('header') as HTMLElement;
+    
+    if (!gameCanvas || !header) return;
+
+    // Calculate dimensions
+    const canvasWidth = gameCanvas.width;
+    const canvasHeight = gameCanvas.height;
+    const headerHeight = 50; // Approximate header height
+    const padding = 10;
+    
+    tempCanvas.width = canvasWidth + (padding * 2);
+    tempCanvas.height = canvasHeight + headerHeight + (padding * 3);
+
+    // Set background
+    tempCtx.fillStyle = '#000000';
+    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+    // Set font for header text
+    tempCtx.fillStyle = '#a8a29e'; // stone-400
+    tempCtx.font = '14px "IBM Plex Mono", monospace';
+    tempCtx.textAlign = 'left';
+
+    // Draw score text
+    const scoreElement = document.getElementById('score');
+    const highScoreElement = document.getElementById('high-score');
+    const currentScore = scoreElement?.textContent || '0';
+    const highScore = highScoreElement?.textContent || '0';
+
+    tempCtx.fillText(`score: ${currentScore}`, padding, padding + 20);
+    
+    // Draw title in center
+    tempCtx.textAlign = 'center';
+    tempCtx.fillText('snake game', tempCanvas.width / 2, padding + 20);
+    
+    // Draw high score on right
+    tempCtx.textAlign = 'right';
+    tempCtx.fillText(`high: ${highScore}`, tempCanvas.width - padding, padding + 20);
+
+    // Draw game canvas
+    tempCtx.drawImage(gameCanvas, padding, headerHeight + (padding * 2));
+
+    // Create download link
+    tempCanvas.toBlob((blob) => {
+      if (!blob) return;
+      
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = `snake-game-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.png`;
+      link.href = url;
+      link.click();
+      
+      // Clean up
+      URL.revokeObjectURL(url);
+    });
   }
 }
 

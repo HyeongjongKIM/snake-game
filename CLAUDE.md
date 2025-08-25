@@ -60,16 +60,18 @@ This is a TypeScript Vite project for a Snake Game. The project uses modern web 
 
 ```
 src/
-├── main.ts         # Main Game class and application entry point
-├── snake.ts        # Snake entity with movement and collision logic
-├── food.ts         # Food entity with generation and scoring
-├── renderer.ts     # Canvas rendering system
-├── score.ts        # Score tracking and persistence
-├── dialog.ts       # Game state dialogs (pause/game over)
-├── message.ts      # User notification system
-├── types.ts        # TypeScript type definitions
-├── index.css       # Global styles with minimal stone theme
-└── vite-env.d.ts   # Vite environment type definitions
+├── main.ts              # Main Game class and application entry point
+├── snake.ts             # Snake entity with movement and collision logic
+├── food.ts              # Food entity with generation and scoring
+├── renderer.ts          # Canvas rendering system
+├── score.ts             # Score tracking and persistence
+├── game-state-dialog.ts # Game state dialogs (pause/game over)
+├── fullscreen-dialog.ts # Full-screen overlay dialogs (settings/info)
+├── settings.ts          # Game settings management
+├── message.ts           # User notification system
+├── types.ts             # TypeScript type definitions
+├── index.css            # Global styles with minimal stone theme
+└── vite-env.d.ts        # Vite environment type definitions
 ```
 
 ### Architecture Overview
@@ -78,17 +80,18 @@ The project follows a **Component-Based Entity System** with clear separation of
 
 - **Game Class** (`main.ts`): Central game loop, state management, and coordination
 - **Entity Classes**: Snake, Food - independent game entities
-- **System Classes**: Renderer, Score, Dialog - specialized functionality
+- **System Classes**: Renderer, Score - specialized functionality
+- **Dialog Classes**: GameStateDialog, FullScreenDialog - UI interaction systems
 - **Type Definitions** (`types.ts`): Shared interfaces and types
 - **Constants**: Game configuration (speed, grid size, key mappings)
 
 ### Naming Conventions
 
-- **Files**: Use kebab-case for file names (`snake.ts`, `dialog.ts`)
-- **Classes**: Use PascalCase for class names (`Game`, `Snake`, `Dialog`)
+- **Files**: Use kebab-case for file names (`snake.ts`, `game-state-dialog.ts`)
+- **Classes**: Use PascalCase for class names (`Game`, `Snake`, `GameStateDialog`, `FullScreenDialog`)
 - **Functions**: Use camelCase for function names (`handleKeyPress`, `checkCollision`)
 - **Constants**: Use UPPER_SNAKE_CASE for constants (`GAME_SPEED`, `GRID_SIZE`)
-- **Types**: Use PascalCase with descriptive names (`GameState`, `Position`, `DialogOptions`)
+- **Types**: Use PascalCase with descriptive names (`GameState`, `Position`, `GameStateDialogOptions`, `FullScreenDialogOptions`)
 
 ## Design System
 
@@ -146,6 +149,8 @@ The game uses a simple state machine with four states:
 
 - **Movement Keys**: Arrow keys + WASD
 - **Pause/Resume**: Spacebar (only during gameplay)
+- **Settings Menu**: Escape key or '*' button click
+- **Screenshot**: 'S' key (when settings dialog is open)
 - **Direction Validation**: Prevents 180-degree turns
 - **Input Queuing**: Allows buffering of direction changes
 
@@ -158,9 +163,49 @@ The game uses a simple state machine with four states:
 
 ### Dialog System
 
-Two dialog types with auto-focus:
-- **Pause Dialog**: Resume button with keyboard support
-- **Game Over Dialog**: Restart button with keyboard support
+The game implements a dual dialog system with distinct purposes and behaviors:
+
+#### GameStateDialog (`game-state-dialog.ts`)
+- **Purpose**: Handles in-game state dialogs that appear over the game canvas
+- **Types**: Pause dialog, Game Over dialog  
+- **Behavior**: Small overlay within game area, auto-focus on buttons
+- **Usage**: Game state transitions and temporary interruptions
+
+#### FullScreenDialog (`fullscreen-dialog.ts`)
+- **Purpose**: Handles full-screen overlay dialogs for comprehensive interactions
+- **Types**: Settings dialog, Info/Help dialog
+- **Behavior**: Full-screen overlay with backdrop blur, type-based routing
+- **Features**: 
+  - Keyboard navigation (arrow keys, Enter, Escape, S for screenshot)
+  - Click interactions with visual feedback
+  - Screenshot functionality (captures canvas and score header)
+  - Automatic event listener cleanup
+  - State preservation during transitions
+
+#### Dialog Integration
+- **Event Handling**: Both dialogs block game input when active
+- **State Management**: Proper pause/resume handling for ongoing games  
+- **Accessibility**: Full keyboard support and auto-focus behavior
+
+### Screenshot System
+
+The game includes a screenshot feature that captures both the game canvas and score information:
+
+#### Features
+- **Canvas Capture**: Captures the entire game canvas with current game state
+- **Header Integration**: Includes score, title, and high score in the screenshot
+- **Automatic Download**: Screenshots are automatically saved as PNG files
+- **Timestamp Naming**: Files are named with current date/time (e.g., `snake-game-2024-01-15T10-30-45.png`)
+
+#### Usage
+- **Settings Dialog**: Click "Screenshot" button or press 'S' key
+- **Keyboard Shortcut**: 'S' key when settings dialog is open
+- **File Format**: PNG with black background and stone-themed text styling
+
+#### Implementation
+- Uses HTML5 Canvas API to create composite image
+- Combines game canvas with recreated header text
+- Maintains visual consistency with game's stone aesthetic theme
 
 ## TypeScript Guidelines
 

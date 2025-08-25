@@ -8,9 +8,9 @@ interface GameOverDialogOptions {
   onRestart: () => void;
 }
 
-type DialogOptions = PauseDialogOptions | GameOverDialogOptions;
+type GameStateDialogOptions = PauseDialogOptions | GameOverDialogOptions;
 
-export class Dialog {
+export class GameStateDialog {
   private overlay: HTMLDivElement;
   private currentButton: HTMLButtonElement | null = null;
 
@@ -18,7 +18,7 @@ export class Dialog {
     this.overlay = document.getElementById('dialog') as HTMLDivElement;
   }
 
-  show(options: DialogOptions) {
+  show(options: GameStateDialogOptions) {
     this.createDialog(options);
     this.overlay.classList.remove('hidden');
     this.overlay.classList.add('flex');
@@ -35,7 +35,7 @@ export class Dialog {
     this.currentButton = null;
   }
 
-  private createDialog(options: DialogOptions): void {
+  private createDialog(options: GameStateDialogOptions): void {
     if (options.state === 'end') {
       this.createGameOverDialog(options.onRestart);
     } else if (options.state === 'paused') {
@@ -51,10 +51,7 @@ export class Dialog {
         >
           Game Over
         </h3>
-        <button
-          id="restartButton"
-          class="backdrop-blur-sm border-1 px-6 py-3 uppercase tracking-wide transition-all duration-300"
-        >
+        <button id="restartButton">
           Restart
         </button>
       </div>
@@ -71,10 +68,7 @@ export class Dialog {
   private createPausedDialog(onResume: () => void): void {
     this.overlay.innerHTML = `
       <div class="flex flex-col justify-center items-center gap-4">
-        <button
-          id="resumeButton"
-          class="backdrop-blur-sm border-1 px-6 py-3 uppercase tracking-wide transition-all duration-300 hover:bg-stone-400 hover:text-black"
-        >
+        <button id="resumeButton">
           Resume
         </button>
       </div>
