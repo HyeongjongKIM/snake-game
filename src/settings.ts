@@ -87,14 +87,4 @@ export class GameSettings {
       console.warn('Failed to save settings to localStorage:', error);
     }
   }
-
-  /**
-   * Reset settings to defaults
-   */
-  resetToDefaults(): void {
-    this.settings = {
-      gridSizeOption: GameSettings.GRID_OPTIONS[1], // 20x20
-    };
-    this.saveSettings();
-  }
 }

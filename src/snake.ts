@@ -20,17 +20,33 @@ export class Snake {
     return this.body[0];
   }
 
-  getDirection(): Position {
+  /**
+   * Gets the current active direction (the one being used for movement)
+   */
+  getCurrentDirection(): Position {
     return { ...this.currentDirection };
   }
 
-  setDirection(direction: Position | null): void {
-    direction = direction ?? this.currentDirection;
+  /**
+   * Gets the next queued direction (what direction will be applied next)
+   */
+  getNextQueuedDirection(): Position {
+    return this.moveQueue.length > 0
+      ? { ...this.moveQueue[this.moveQueue.length - 1] }
+      : { ...this.currentDirection };
+  }
+
+  /**
+   * Immediately sets the current direction (for game start)
+   */
+  setDirection(direction: Position): void {
     // Ensure we have a valid direction (not { x: 0, y: 0 })
     if (direction.x === 0 && direction.y === 0) {
       direction = this.getRandomDirection();
     }
     this.currentDirection = { ...direction };
+    // Clear queue when setting direction directly
+    this.moveQueue = [];
   }
 
   move(): void {
@@ -81,19 +97,23 @@ export class Snake {
     this.moveQueue = [];
   }
 
-  // Move queue management methods
+  /**
+   * Queues a direction change for the next move
+   * This allows for buffered input and smooth direction changes
+   */
   queueDirection(direction: Position): void {
     // Limit queue size to prevent excessive queuing
     if (this.moveQueue.length < 2) {
-      this.moveQueue.push(direction);
+      this.moveQueue.push({ ...direction });
     }
   }
 
-  getCurrentDirection(): Position {
-    // Get current direction (either from queue or current direction)
-    return this.moveQueue.length > 0
-      ? this.moveQueue[this.moveQueue.length - 1]
-      : this.currentDirection;
+  /**
+   * Checks if a direction change would be valid (not opposite to current direction)
+   */
+  isValidDirectionChange(newDirection: Position): boolean {
+    const current = this.getNextQueuedDirection();
+    return !(newDirection.x === -current.x && newDirection.y === -current.y);
   }
 
   draw(ctx: CanvasRenderingContext2D): void {

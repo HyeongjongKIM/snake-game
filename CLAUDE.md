@@ -4,321 +4,440 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a TypeScript Vite project for a Snake Game. The project uses modern web development tools including TypeScript, Vite for fast development and building, and ESLint for code quality. It uses Yarn with PnP (Plug'n'Play) for dependency management.
+This is a modern TypeScript Snake Game built with reactive architecture patterns. The project demonstrates advanced state management through an observer pattern implementation, clean component separation, and modern web development practices. Built with Vite for fast development and optimized production builds.
+
+## Technology Stack
+
+### Core Technologies
+
+- **TypeScript** - Primary language with strict type checking and comprehensive type definitions
+- **Vite** - Lightning-fast build tool with HMR and optimized bundling
+- **Yarn 4.9.2** - Package manager with PnP (Plug'n'Play) for efficient dependency management
+- **HTML5 Canvas** - High-performance game rendering
+
+### Architecture Libraries
+
+- **Custom Subject System** (`src/libs/subject.ts`) - Reactive state management with observer pattern
+- **GameStateManager** - Singleton-based global state coordination
+- **Component-based Entity System** - Modular game architecture
+
+### Code Quality Tools
+
+- **ESLint** - TypeScript/JavaScript linter with flat config and strict rules
+- **Prettier** - Automated code formatting for consistent style
+- **TypeScript Compiler** - Strict mode with comprehensive type checking
+- **@typescript-eslint** - TypeScript-specific linting rules
 
 ## Development Commands
 
 ### Package Management
+- `yarn install` - Install dependencies with PnP optimization
+- `yarn install --frozen-lockfile` - Install for CI/CD with lock file validation
+- `yarn upgrade` - Update dependencies to latest compatible versions
 
-- `yarn install` - Install dependencies
-- `yarn install --frozen-lockfile` - Install dependencies for CI/CD
-- `yarn upgrade` - Update dependencies
-
-### Build Commands
-
-- `yarn build` - Build the project for production (TypeScript compilation + Vite build)
-- `yarn dev` - Start Vite development server (opens browser automatically)
+### Build & Development
+- `yarn build` - Production build with TypeScript compilation and Vite optimization
+- `yarn dev` - Development server with HMR (auto-opens browser)
 - `yarn preview` - Preview production build locally
 
-### Testing Commands
-
-- Testing framework not yet configured
-- Future: Add testing framework (Jest, Vitest, or similar)
-
-### Code Quality Commands
-
-- `yarn lint` - Run ESLint for code linting
-- `yarn lint:fix` - Run ESLint with auto-fix
+### Code Quality
+- `yarn lint` - ESLint validation with TypeScript rules
+- `yarn lint:fix` - Auto-fix linting issues where possible
 - `yarn format` - Format code with Prettier
-- `yarn format:check` - Check if code is properly formatted
-- `yarn typecheck` - Run TypeScript type checking
+- `yarn format:check` - Validate code formatting
+- `yarn typecheck` - TypeScript type checking without compilation
 
-### Development Tools
+### Testing
+- Testing framework not yet configured
+- Recommended: Vitest for unit testing, Playwright for E2E testing
 
-- Currently using basic Vite tooling
-- Future: Add additional development tools as needed
+## Architecture Overview
 
-## Technology Stack
+### Reactive State Management Architecture
 
-### Current Stack
+The project implements a **Subject-Observer Pattern** with centralized state management:
 
-- **TypeScript** - Primary programming language with strict type checking
-- **Vite** - Fast build tool and development server with HMR
-- **Yarn 4.9.2** - Package manager with PnP (Plug'n'Play)
-- **ESLint** - TypeScript/JavaScript linter with flat config
+```
+GameStateManager (Singleton)
+    ├── GameState Subject ('ready' | 'playing' | 'paused' | 'end')
+    └── Score Subject (number)
+         ↓ (observers)
+    Components subscribe to state changes:
+    ├── Game (main coordinator)
+    ├── GameStateDialog (auto-hide on state change)
+    ├── Renderer (pause dimming effects)
+    └── Score (reactive UI updates)
+```
 
-### Code Quality Tools
+### Component Architecture
 
-- **ESLint** - Configured with TypeScript support and recommended rules
-- **Prettier** - Code formatter for consistent code style
-- **TypeScript** - Strict mode enabled for maximum type safety
-- **@typescript-eslint** - TypeScript-specific ESLint rules and parser
+**Core Components**:
+- **Game Class** (`main.ts`): Main coordinator, event handling, game loop management
+- **GameStateManager** (`game-context.ts`): Centralized state management with observer pattern
+- **Subject System** (`libs/subject.ts`): Reactive state management foundation
 
-## Project Structure Guidelines
+**Game Entities**:
+- **Snake** (`snake.ts`): Movement logic, collision detection, direction queue management
+- **Food** (`food.ts`): Random generation, collision detection, scoring logic
+- **Renderer** (`renderer.ts`): Canvas operations, visual effects, state-reactive rendering
 
-### Current File Organization
+**UI Systems**:
+- **GameStateDialog** (`game-state-dialog.ts`): In-game overlays (pause/game over)
+- **FullScreenDialog** (`fullscreen-dialog.ts`): Settings and info modals
+- **Score** (`score.ts`): Reactive score display and persistence
+
+**Configuration & Types**:
+- **GameSettings** (`settings.ts`): Persistent game configuration
+- **Types** (`types.ts`): TypeScript interface definitions
+
+## Project Structure
 
 ```
 src/
-├── main.ts              # Main Game class and application entry point
-├── snake.ts             # Snake entity with movement and collision logic
-├── food.ts              # Food entity with generation and scoring
-├── renderer.ts          # Canvas rendering system
-├── score.ts             # Score tracking and persistence
-├── game-state-dialog.ts # Game state dialogs (pause/game over)
-├── fullscreen-dialog.ts # Full-screen overlay dialogs (settings/info)
-├── settings.ts          # Game settings management
-├── message.ts           # User notification system
-├── types.ts             # TypeScript type definitions
-├── index.css            # Global styles with minimal stone theme
-└── vite-env.d.ts        # Vite environment type definitions
+├── main.ts                 # Game coordinator and entry point
+├── game-context.ts         # GameStateManager and reactive state system
+├── libs/
+│   └── subject.ts          # Observer pattern implementation
+├── snake.ts                # Snake entity with improved direction API
+├── food.ts                 # Food entity with collision and scoring
+├── renderer.ts             # Canvas rendering with state-reactive effects
+├── score.ts                # Reactive score management and persistence  
+├── game-state-dialog.ts    # In-game dialog system with auto-hide
+├── fullscreen-dialog.ts    # Modal dialog system with keyboard nav
+├── settings.ts             # Game configuration management
+├── types.ts                # TypeScript type definitions
+├── index.css               # Minimal stone aesthetic styling
+└── vite-env.d.ts           # Vite type definitions
 ```
 
-### Architecture Overview
+## State Management System
 
-The project follows a **Component-Based Entity System** with clear separation of concerns:
+### GameStateManager (Singleton Pattern)
 
-- **Game Class** (`main.ts`): Central game loop, state management, and coordination
-- **Entity Classes**: Snake, Food - independent game entities
-- **System Classes**: Renderer, Score - specialized functionality
-- **Dialog Classes**: GameStateDialog, FullScreenDialog - UI interaction systems
-- **Type Definitions** (`types.ts`): Shared interfaces and types
-- **Constants**: Game configuration (speed, grid size, key mappings)
+**Purpose**: Centralized state coordination using observer pattern
 
-### Naming Conventions
+**Key Features**:
+- Singleton instance ensures global state consistency
+- Subject-based reactive updates
+- Type-safe state transitions
+- Memory leak prevention through subscription management
 
-- **Files**: Use kebab-case for file names (`snake.ts`, `game-state-dialog.ts`)
-- **Classes**: Use PascalCase for class names (`Game`, `Snake`, `GameStateDialog`, `FullScreenDialog`)
-- **Functions**: Use camelCase for function names (`handleKeyPress`, `checkCollision`)
-- **Constants**: Use UPPER_SNAKE_CASE for constants (`GAME_SPEED`, `GRID_SIZE`)
-- **Types**: Use PascalCase with descriptive names (`GameState`, `Position`, `GameStateDialogOptions`, `FullScreenDialogOptions`)
+**API**:
+```typescript
+// Game State Management
+gameStateManager.getGameState(): GameState
+gameStateManager.setGameState(state: GameState): void
+gameStateManager.subscribeToGameState(callback): Subscription
 
-## Design System
+// Score Management  
+gameStateManager.getScore(): number
+gameStateManager.setScore(score: number): void
+gameStateManager.subscribeToScore(callback): Subscription
+```
 
-### Visual Theme
+### Subject System
 
-The game uses a **minimal stone aesthetic** with a focus on readability and modern design:
+**Features**:
+- Generic reactive state container
+- Automatic change detection with `Object.is()`
+- Safe error handling in subscriber callbacks
+- Subscription management with cleanup
 
-- **Color Palette**: Stone/neutral tones with subtle gradients
-- **Typography**: IBM Plex Mono for consistent monospace appearance
-- **Visual Style**: Clean, minimal design without distracting effects
+**Usage Pattern**:
+```typescript
+// Create reactive state
+const subject = new Subject<StateType>(initialValue);
 
-### Color Guidelines
+// Subscribe to changes
+const subscription = subject.subscribe((newState, prevState) => {
+  // React to state changes
+});
 
-**Background Colors**:
-- Primary background: Black with stone gradient (`from-stone-800/40 via-stone-700/20 to-stone-900/30`)
-- Text colors: Stone-400 for UI elements, Stone-300 for less prominent text
+// Update state
+subject.setState(newValue);
+subject.setState(prev => transformFunction(prev));
 
-**Game Entity Colors**:
-- **Snake**: Stone tones with subtle glow effects
-  - Head: `#d6d3d1` (stone-300) with `#f5f5f4` highlight
-  - Body: `#a8a29e` (stone-400) with `#e7e5e4` highlight
-- **Food**: Warm orange-amber tones for contrast
-  - Primary: `#ea580c` (orange-600) with `#fb923c` highlight
-  - Glow: `#d97706` (amber-600) for subtle emphasis
-
-**UI Components**:
-- Borders: Stone-600 default, Stone-400 for active/hover states
-- Buttons: Stone-400 background on hover with black text
-- Grid lines: Subtle stone grid with minimal opacity
-
-### Typography
-
-- **Primary Font**: IBM Plex Mono - consistent, readable monospace
-- **Font Weights**: Regular (400) for body text, no bold weights to maintain minimalism
-- **Text Hierarchy**: Size-based hierarchy without weight variation
-
-### Design Principles
-
-1. **Minimalism**: Clean design without unnecessary visual noise
-2. **Readability**: High contrast ratios and clear typography
-3. **Consistency**: Unified color palette and spacing throughout
-4. **Accessibility**: Consider color contrast and keyboard navigation
+// Cleanup
+subscription.unsubscribe();
+```
 
 ## Game Development Guidelines
 
-### Game State Management
+### Enhanced Snake API
 
-The game uses a simple state machine with four states:
-- `'ready'` - Initial state, waiting for user input
-- `'playing'` - Active gameplay
-- `'paused'` - Game paused by user
-- `'end'` - Game over
+The Snake class provides a clean, consistent API for movement and direction management:
 
-### Key Input System
+**Direction Management**:
+```typescript
+// Get current active direction
+snake.getCurrentDirection(): Position
 
-- **Movement Keys**: Arrow keys + WASD
-- **Pause/Resume**: Spacebar (only during gameplay)
-- **Settings Menu**: Escape key or '*' button click
-- **Screenshot**: 'S' key (when settings dialog is open)
-- **Direction Validation**: Prevents 180-degree turns
-- **Input Queuing**: Allows buffering of direction changes
+// Get next queued direction (includes queue)
+snake.getNextQueuedDirection(): Position
 
-### Entity System
+// Immediate direction setting (game start/resume)
+snake.setDirection(direction: Position): void
 
-- **Snake**: Body segments, movement, collision detection
-- **Food**: Random generation, collision detection, scoring
-- **Renderer**: Canvas drawing, entity visualization
-- **Score**: Current score, high score persistence
+// Queue direction for next move (gameplay)
+snake.queueDirection(direction: Position): void
 
-### Dialog System
+// Validate direction changes (prevent 180° turns)
+snake.isValidDirectionChange(newDirection: Position): boolean
+```
 
-The game implements a dual dialog system with distinct purposes and behaviors:
+### Game State Flow
 
-#### GameStateDialog (`game-state-dialog.ts`)
-- **Purpose**: Handles in-game state dialogs that appear over the game canvas
-- **Types**: Pause dialog, Game Over dialog  
-- **Behavior**: Small overlay within game area, auto-focus on buttons
-- **Usage**: Game state transitions and temporary interruptions
+**State Transitions**:
+```
+ready → playing (user input)
+playing → paused (spacebar/settings)
+paused → playing (user input/resume)
+playing → end (collision)
+end → ready (restart)
+```
 
-#### FullScreenDialog (`fullscreen-dialog.ts`)
-- **Purpose**: Handles full-screen overlay dialogs for comprehensive interactions
-- **Types**: Settings dialog, Info/Help dialog
-- **Behavior**: Full-screen overlay with backdrop blur, type-based routing
-- **Features**: 
-  - Keyboard navigation (arrow keys, Enter, Escape, S for screenshot)
-  - Click interactions with visual feedback
-  - Screenshot functionality (captures canvas and score header)
-  - Automatic event listener cleanup
-  - State preservation during transitions
+**State-Reactive Behaviors**:
+- **GameStateDialog**: Auto-hide when transitioning to 'playing'
+- **Renderer**: Dim canvas overlay during 'paused' state
+- **Score**: Reactive UI updates via state subscription
+- **Game**: Loop control and input handling based on state
 
-#### Dialog Integration
-- **Event Handling**: Both dialogs block game input when active
-- **State Management**: Proper pause/resume handling for ongoing games  
-- **Accessibility**: Full keyboard support and auto-focus behavior
+### Input System
 
-### Screenshot System
+**Keyboard Controls**:
+- **Movement**: Arrow keys + WASD (with direction validation)
+- **Pause/Resume**: Spacebar (during gameplay)
+- **Settings**: Escape key
+- **Screenshot**: 'S' key (in settings dialog)
 
-The game includes a screenshot feature that captures both the game canvas and score information:
+**Input Processing**:
+1. Validate direction change (prevent opposite directions)
+2. State-dependent handling:
+   - `ready`/`paused`: Start game immediately
+   - `playing`: Queue direction for smooth movement
+3. Direction buffering for responsive controls
 
-#### Features
-- **Canvas Capture**: Captures the entire game canvas with current game state
-- **Header Integration**: Includes score, title, and high score in the screenshot
-- **Automatic Download**: Screenshots are automatically saved as PNG files
-- **Timestamp Naming**: Files are named with current date/time (e.g., `snake-game-2024-01-15T10-30-45.png`)
+### Dialog System Architecture
 
-#### Usage
-- **Settings Dialog**: Click "Screenshot" button or press 'S' key
-- **Keyboard Shortcut**: 'S' key when settings dialog is open
-- **File Format**: PNG with black background and stone-themed text styling
+**GameStateDialog (In-game Overlays)**:
+- Purpose: Quick game state interactions
+- Behavior: Small overlay with auto-focus
+- Integration: Reactive hiding on game start
+- Memory: Automatic subscription cleanup
 
-#### Implementation
-- Uses HTML5 Canvas API to create composite image
-- Combines game canvas with recreated header text
-- Maintains visual consistency with game's stone aesthetic theme
+**FullScreenDialog (Modal System)**:
+- Purpose: Complex interactions (settings, info)
+- Features: Full keyboard navigation, screenshot capability
+- State: Preserves game state during interaction
+- Accessibility: Proper focus management and ARIA support
 
-## TypeScript Guidelines
+## Visual Design System
 
-### Type Safety
+### Stone Aesthetic Theme
 
-- Enable strict mode in `tsconfig.json`
-- Use explicit types for function parameters and return values
-- Prefer interfaces over types for object shapes
-- Use union types for multiple possible values
-- Avoid `any` type - use `unknown` when type is truly unknown
+**Color Palette**:
+- **Backgrounds**: Black base with stone gradients
+- **UI Elements**: Stone-400 (`#a8a29e`) for primary text
+- **Secondary Text**: Stone-300 (`#d6d3d1`) for highlights
+- **Game Entities**:
+  - Snake Head: `#d6d3d1` with `#f5f5f4` highlight  
+  - Snake Body: `#a8a29e` with `#e7e5e4` highlight
+  - Food: `#ea580c` (orange-600) with `#fb923c` highlight
 
-### Best Practices
+**Typography**:
+- **Font Family**: IBM Plex Mono (monospace consistency)
+- **Weight**: Regular (400) throughout for minimal aesthetic
+- **Hierarchy**: Size-based without weight variation
 
-- Use type guards for runtime type checking
-- Leverage utility types (`Partial`, `Pick`, `Omit`, etc.)
-- Create custom types for domain-specific data
-- Use enums for finite sets of values
-- Document complex types with JSDoc comments
+**Design Principles**:
+1. **Minimalism**: Clean, distraction-free design
+2. **Readability**: High contrast and clear typography  
+3. **Consistency**: Unified palette and spacing
+4. **Accessibility**: Keyboard navigation and color contrast compliance
 
 ## Code Quality Standards
 
+### TypeScript Configuration
+
+**Strict Type Checking**:
+- `strict: true` - Enable all strict type-checking options
+- `noImplicitAny: true` - Flag implicit any types
+- `strictNullChecks: true` - Enable strict null/undefined checking
+- `noImplicitReturns: true` - Flag functions without return statements
+
+**Best Practices**:
+- Explicit return types for public methods
+- Comprehensive JSDoc documentation for complex logic
+- Interface definitions for all object shapes
+- Union types for controlled value sets
+- Utility types (`Partial`, `Pick`, `Omit`) where appropriate
+
 ### ESLint Configuration
 
-The project uses ESLint with flat config format (`eslint.config.js`):
+**Rule Categories**:
+- **TypeScript Rules**: `@typescript-eslint/recommended`
+- **Code Style**: Consistent formatting and patterns
+- **Best Practices**: Modern JavaScript/TypeScript patterns
+- **Error Prevention**: Catch potential runtime errors
 
-- TypeScript recommended rules with `@typescript-eslint`
-- Strict TypeScript rules enabled
-- Code style rules for consistency
-- Proper ignoring of build artifacts and Yarn PnP files
+**Key Rules**:
+```javascript
+{
+  '@typescript-eslint/no-unused-vars': 'error',
+  '@typescript-eslint/no-explicit-any': 'warn',
+  'prefer-const': 'error',
+  'no-var': 'error',
+  'object-shorthand': 'error'
+}
+```
 
-### Current ESLint Rules
+### Memory Management
 
-- `@typescript-eslint/no-unused-vars`: error
-- `@typescript-eslint/no-explicit-any`: warn
-- `prefer-const`, `no-var`, `object-shorthand`: enabled
-- `no-console`: warn (for production readiness)
-- `no-debugger`: error
+**Subscription Cleanup**:
+- All components implement `destroy()` methods
+- Automatic subscription cleanup prevents memory leaks
+- Component re-initialization properly cleans up previous instances
 
-### Prettier Configuration
+**Pattern**:
+```typescript
+class Component {
+  private subscription?: Subscription;
+  
+  constructor() {
+    this.subscription = subject.subscribe(callback);
+  }
+  
+  public destroy(): void {
+    if (this.subscription && !this.subscription.closed) {
+      this.subscription.unsubscribe();
+    }
+  }
+}
+```
 
-The project uses Prettier with the following settings (`.prettierrc`):
+## Performance Considerations
 
-- Single quotes for strings
-- Semicolons enabled
-- 80 character line width
-- 2-space indentation
-- Trailing commas for all ES5-valid syntax
-- Always use parentheses around arrow function parameters
+### Game Loop Optimization
 
-### Testing Standards
+**Current Implementation**:
+- `setInterval` based game loop (150ms intervals)
+- State-gated update cycle to prevent unnecessary work
+- Efficient collision detection with early returns
 
-- Aim for 80%+ test coverage
-- Write unit tests for utilities and business logic
-- Use integration tests for component interactions
-- Implement e2e tests for critical user flows
-- Follow AAA pattern (Arrange, Act, Assert)
-
-## Performance Optimization
+**Future Enhancements**:
+- Consider `requestAnimationFrame` for smoother animation
+- Implement delta time for frame-independent movement
+- Add performance monitoring and metrics
 
 ### Bundle Optimization
 
-- Use code splitting for large applications
-- Implement lazy loading for routes and components
-- Optimize images and assets
-- Use tree shaking to eliminate dead code
-- Analyze bundle size regularly
+**Current Stats**:
+- Production bundle: ~19.7KB (gzipped: ~5.6KB)
+- CSS bundle: ~16.5KB (gzipped: ~3.7KB)
+- Efficient tree-shaking with ES modules
 
-### Runtime Performance
+### Reactive Performance
 
-- Implement proper memoization (React.memo, useMemo, useCallback)
-- Use virtualization for large lists
-- Optimize re-renders in React applications
-- Implement proper error boundaries
-- Use web workers for heavy computations
-
-## Security Guidelines
-
-### Dependencies
-
-- Regularly audit dependencies with `npm audit`
-- Keep dependencies updated
-- Use lock files (`package-lock.json`, `yarn.lock`)
-- Avoid dependencies with known vulnerabilities
-
-### Code Security
-
-- Sanitize user inputs
-- Use HTTPS for API calls
-- Implement proper authentication and authorization
-- Store sensitive data securely (environment variables)
-- Use Content Security Policy (CSP) headers
+**Observer Pattern Benefits**:
+- Decoupled component updates
+- Efficient change propagation
+- Prevents unnecessary re-renders through change detection
+- Error isolation in subscriber callbacks
 
 ## Development Workflow
 
-### Before Starting
-
-1. Check Node.js version compatibility
-2. Install dependencies with `yarn install`
-3. Run type checking with `yarn typecheck`
-4. Ensure ESLint passes: `yarn lint`
+### Pre-Development Setup
+1. Verify Node.js compatibility (check package.json engines)
+2. Install dependencies: `yarn install`
+3. Validate setup: `yarn typecheck && yarn lint`
 
 ### During Development
+1. Run development server: `yarn dev`
+2. Use TypeScript for type safety and better IDE support
+3. Frequent linting: `yarn lint` (consider IDE integration)
+4. Leverage Vite's HMR for rapid iteration
+5. Test state management with browser dev tools
 
-1. Use TypeScript for type safety
-2. Run linter frequently to catch issues early: `yarn lint`
-3. Use meaningful commit messages
-4. Review code changes before committing
-5. Take advantage of Vite's fast HMR for development
+### Pre-Commit Checklist
+1. **Format**: `yarn format` (automated styling)
+2. **Lint**: `yarn lint` (catch errors and style issues)  
+3. **Type Check**: `yarn typecheck` (verify type safety)
+4. **Build**: `yarn build` (ensure production compatibility)
+5. **Review**: Check changed files for unintended modifications
 
-### Before Committing
+### Commit Standards
+- Use conventional commit format: `type: description`
+- Types: `feat`, `fix`, `refactor`, `chore`, `docs`, `style`
+- Keep descriptions concise and descriptive
+- Include breaking changes in commit body when applicable
 
-1. Format code: `yarn format`
-2. Check linting: `yarn lint`
-3. Run type checking: `yarn typecheck`
-4. Test production build: `yarn build`
-5. Consider running `yarn lint:fix` to auto-fix linting issues
+## Architecture Patterns
+
+### Observer Pattern Implementation
+
+**Benefits**:
+- Loose coupling between components
+- Centralized state management
+- Reactive UI updates
+- Scalable event system
+
+**Usage Guidelines**:
+- Use for cross-component communication
+- Implement proper cleanup to prevent memory leaks
+- Keep subscriber callbacks lightweight
+- Use type-safe subscriptions with TypeScript
+
+### Singleton Pattern (GameStateManager)
+
+**Justification**:
+- Global game state requirement
+- Single source of truth for state
+- Simplified access pattern
+- Memory efficiency
+
+**Considerations**:
+- Ensure thread safety (not applicable in single-threaded JS)
+- Plan for testing with dependency injection if needed
+- Document global state dependencies clearly
+
+## Future Enhancements
+
+### Testing Infrastructure
+- **Unit Testing**: Vitest for component logic testing
+- **Integration Testing**: Component interaction testing
+- **E2E Testing**: Playwright for user workflow validation
+- **Coverage Goals**: 80%+ for critical game logic
+
+### Performance Improvements
+- **Animation**: RequestAnimationFrame for smoother rendering  
+- **Input**: Debounce rapid key presses
+- **Rendering**: Canvas optimization techniques
+- **Memory**: Object pooling for game entities
+
+### Feature Extensions
+- **Multiplayer**: WebSocket-based real-time gameplay
+- **Themes**: Multiple visual themes with reactive switching
+- **Sound**: Audio system with reactive volume control
+- **Analytics**: Performance monitoring and user metrics
+
+---
+
+## Important Notes
+
+**File Management**:
+- ALWAYS prefer editing existing files over creating new ones
+- NEVER create documentation files unless explicitly requested
+- Use TypeScript strict mode for all new code
+- Follow established naming conventions consistently
+
+**Code Standards**:
+- Implement proper error handling for DOM operations
+- Use defensive programming patterns
+- Document complex logic with JSDoc comments
+- Ensure accessibility compliance for UI components
+
+**State Management**:
+- All state changes should go through GameStateManager
+- Implement proper subscription cleanup in all components
+- Use type-safe state transitions
+- Test observer pattern behavior thoroughly

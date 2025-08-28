@@ -123,25 +123,22 @@ class Game {
       return;
     }
 
-    const currentDirection = this.snake.getCurrentDirection();
-
-    const isOppositeDirection =
-      newDirection.x === -currentDirection.x &&
-      newDirection.y === -currentDirection.y;
-
-    if (!isOppositeDirection) {
-      // Add the new direction to queue if it's different from current
-      if (
-        newDirection.x !== currentDirection.x ||
-        newDirection.y !== currentDirection.y
-      ) {
-        this.snake.queueDirection(newDirection);
-      }
-
+    // Check if the direction change is valid (not opposite)
+    if (this.snake.isValidDirectionChange(newDirection)) {
       if (currentState === 'ready' || currentState === 'paused') {
+        // For game start/resume, always allow direction and start game
         this.snake.setDirection(newDirection);
         this.gameStateManager.setGameState('playing');
         this.startGame();
+      } else {
+        // During gameplay, only queue if direction is different
+        const nextDirection = this.snake.getNextQueuedDirection();
+        if (
+          newDirection.x !== nextDirection.x ||
+          newDirection.y !== nextDirection.y
+        ) {
+          this.snake.queueDirection(newDirection);
+        }
       }
     }
 
@@ -299,7 +296,7 @@ class Game {
 
     const gameCanvas = document.querySelector('canvas') as HTMLCanvasElement;
     const header = document.querySelector('header') as HTMLElement;
-    
+
     if (!gameCanvas || !header) return;
 
     // Calculate dimensions
@@ -307,9 +304,9 @@ class Game {
     const canvasHeight = gameCanvas.height;
     const headerHeight = 50; // Approximate header height
     const padding = 10;
-    
-    tempCanvas.width = canvasWidth + (padding * 2);
-    tempCanvas.height = canvasHeight + headerHeight + (padding * 3);
+
+    tempCanvas.width = canvasWidth + padding * 2;
+    tempCanvas.height = canvasHeight + headerHeight + padding * 3;
 
     // Set background
     tempCtx.fillStyle = '#000000';
@@ -327,28 +324,32 @@ class Game {
     const highScore = highScoreElement?.textContent || '0';
 
     tempCtx.fillText(`score: ${currentScore}`, padding, padding + 20);
-    
+
     // Draw title in center
     tempCtx.textAlign = 'center';
     tempCtx.fillText('snake game', tempCanvas.width / 2, padding + 20);
-    
+
     // Draw high score on right
     tempCtx.textAlign = 'right';
-    tempCtx.fillText(`high: ${highScore}`, tempCanvas.width - padding, padding + 20);
+    tempCtx.fillText(
+      `high: ${highScore}`,
+      tempCanvas.width - padding,
+      padding + 20,
+    );
 
     // Draw game canvas
-    tempCtx.drawImage(gameCanvas, padding, headerHeight + (padding * 2));
+    tempCtx.drawImage(gameCanvas, padding, headerHeight + padding * 2);
 
     // Create download link
     tempCanvas.toBlob((blob) => {
       if (!blob) return;
-      
+
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.download = `snake-game-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.png`;
       link.href = url;
       link.click();
-      
+
       // Clean up
       URL.revokeObjectURL(url);
     });

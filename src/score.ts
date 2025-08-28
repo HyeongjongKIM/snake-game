@@ -13,14 +13,12 @@ export class Score {
   }
 
   private setupScoreSubscription(): void {
-    this.scoreSubscription = this.gameStateManager.subscribeToScore((newScore) => {
-      this.currentScore = newScore;
-      this.updateScoreDisplay();
-    });
-  }
-
-  getCurrentScore(): number {
-    return this.currentScore;
+    this.scoreSubscription = this.gameStateManager.subscribeToScore(
+      (newScore) => {
+        this.currentScore = newScore;
+        this.updateScoreDisplay();
+      },
+    );
   }
 
   getHighScore(): number {
@@ -55,7 +53,9 @@ export class Score {
   }
 
   updateHighScoreDisplay(): void {
-    const highScoreSpan = document.getElementById('high-score') as HTMLSpanElement;
+    const highScoreSpan = document.getElementById(
+      'high-score',
+    ) as HTMLSpanElement;
     if (highScoreSpan) {
       highScoreSpan.textContent = this.getHighScore().toString();
     }
