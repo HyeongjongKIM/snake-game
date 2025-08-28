@@ -6,12 +6,16 @@ import { GameStateDialog } from './game-state-dialog';
 import { FullScreenDialog } from './fullscreen-dialog';
 import { GameSettings } from './settings';
 import { GameStateManager, type GameState } from './game-context';
-import type { Position } from './types';
+import type { Position } from './libs/types';
+import { DEFAULT_GAME_TIMING } from './libs/constants';
+import {
+  GameLoopController,
+  type GameLoopCallbacks,
+} from './game-loop-controller';
 
 type DirectionKey = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
 
 const GRID_SIZE = 20;
-const GAME_SPEED = 150;
 
 const DIRECTIONS: Record<DirectionKey, Position> = {
   UP: { x: 0, y: -1 },
@@ -44,11 +48,13 @@ class Game {
   private gridSize = GRID_SIZE;
   private canvasSize = 400; // Canvas size from HTML
 
-  private gameLoop: number | null = null;
+  private gameLoopController!: GameLoopController;
+  private fpsDisplay?: HTMLElement;
 
   constructor() {
     this.gameStateManager = GameStateManager.getInstance();
     this.settings = new GameSettings();
+    this.initializeGameLoop();
     this.initializeComponents();
     this.setupEventListeners();
     this.initializeGame();
@@ -148,15 +154,12 @@ class Game {
   private startGame(): void {
     this.gameStateManager.setGameState('playing');
     this.gameStateDialog.hide();
-    this.gameLoop = setInterval(() => this.update(), GAME_SPEED);
+    this.gameLoopController.start();
   }
 
   private stopGame(state: Exclude<GameState, 'playing'>) {
     this.gameStateManager.setGameState(state);
-    if (this.gameLoop) {
-      clearInterval(this.gameLoop);
-      this.gameLoop = null;
-    }
+    this.gameLoopController.stop();
     if (state === 'paused') {
       this.gameStateDialog.show({
         state: 'paused',
@@ -192,9 +195,8 @@ class Game {
   private showSettings(): void {
     const currentState = this.gameStateManager.getGameState();
     // Playing 중이면 게임 루프만 중단 (상태는 유지)
-    if (currentState === 'playing' && this.gameLoop) {
-      clearInterval(this.gameLoop);
-      this.gameLoop = null;
+    if (currentState === 'playing' && this.gameLoopController.isRunning()) {
+      this.gameLoopController.stop();
     }
 
     if (currentState === 'paused') {
@@ -230,12 +232,56 @@ class Game {
     this.initializeGame();
   }
 
+  private initializeGameLoop(): void {
+    const callbacks: GameLoopCallbacks = {
+      update: this.update.bind(this),
+      render: this.render.bind(this),
+      onFpsUpdate: this.updateFpsDisplay.bind(this),
+      onError: this.handleGameLoopError.bind(this),
+    };
+
+    this.gameLoopController = new GameLoopController(
+      DEFAULT_GAME_TIMING,
+      callbacks,
+    );
+
+    this.setupFpsDisplay();
+  }
+
   private update(): void {
-    if (this.gameStateManager.getGameState() !== 'playing') return;
+    // Only update game logic if in playing state
+    if (this.gameStateManager.getGameState() !== 'playing') {
+      this.gameLoopController.stop();
+      return;
+    }
+
     this.snake.move();
     this.checkCollisions();
     this.checkFoodCollision();
+  }
+
+  private render(): void {
     this.renderer.render(this.snake, this.food);
+  }
+
+  private setupFpsDisplay(): void {
+    this.fpsDisplay = document.getElementById('fps-counter') as HTMLDivElement;
+  }
+
+  private updateFpsDisplay(fps: number): void {
+    if (this.fpsDisplay) {
+      this.fpsDisplay.textContent = `${fps}fps`;
+    }
+  }
+
+  private handleGameLoopError(error: Error): void {
+    console.error('Game loop encountered an error:', error);
+
+    // Show error to user and pause game
+    this.stopGame('paused');
+
+    // Could show an error dialog here if needed
+    console.log('Game paused due to error. Press space to retry.');
   }
 
   private checkCollisions(): void {
@@ -264,9 +310,8 @@ class Game {
     const currentState = this.gameStateManager.getGameState();
     // Playing 중이면 게임 루프만 중단 (상태는 유지)
     const wasPlaying = currentState === 'playing';
-    if (wasPlaying && this.gameLoop) {
-      clearInterval(this.gameLoop);
-      this.gameLoop = null;
+    if (wasPlaying && this.gameLoopController.isRunning()) {
+      this.gameLoopController.stop();
     }
 
     if (currentState === 'paused') {

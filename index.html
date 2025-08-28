@@ -40,9 +40,14 @@
             class="absolute top-0 left-0 size-full flex-col items-center justify-center p-4 hidden"
           ></div>
         </div>
-        <div class="flex items-center justify-end gap-2">
-          <div id="info" class="p-1 cursor-default hover:underline">?</div>
-          <div id="settings" class="p-1 cursor-default hover:underline">*</div>
+        <div class="flex items-center justify-between">
+          <div id="fps-counter" class="opacity-50 text-xs">120fps</div>
+          <div
+            class="flex items-center justify-end cursor-default [&>*]:hover:underline [&>*]:py-0.5 [&>*]:px-1"
+          >
+            <div id="info">?</div>
+            <div id="settings">*</div>
+          </div>
         </div>
       </main>
       <footer class="flex justify-center gap-4 mt-4"></footer>

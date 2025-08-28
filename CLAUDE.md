@@ -19,6 +19,7 @@ This is a modern TypeScript Snake Game built with reactive architecture patterns
 
 - **Custom Subject System** (`src/libs/subject.ts`) - Reactive state management with observer pattern
 - **GameStateManager** - Singleton-based global state coordination
+- **GameLoopController** (`src/game-loop-controller.ts`) - High-performance requestAnimationFrame-based game loop with error handling
 - **Component-based Entity System** - Modular game architecture
 
 ### Code Quality Tools
@@ -72,7 +73,8 @@ GameStateManager (Singleton)
 ### Component Architecture
 
 **Core Components**:
-- **Game Class** (`main.ts`): Main coordinator, event handling, game loop management
+- **Game Class** (`main.ts`): Main coordinator, event handling, component initialization
+- **GameLoopController** (`game-loop-controller.ts`): Optimized game loop with requestAnimationFrame, FPS monitoring, and error recovery
 - **GameStateManager** (`game-context.ts`): Centralized state management with observer pattern
 - **Subject System** (`libs/subject.ts`): Reactive state management foundation
 
@@ -88,16 +90,19 @@ GameStateManager (Singleton)
 
 **Configuration & Types**:
 - **GameSettings** (`settings.ts`): Persistent game configuration
-- **Types** (`types.ts`): TypeScript interface definitions
+- **Types & Constants** (`libs/types.ts`, `libs/constants.ts`): TypeScript definitions and game timing configuration
 
 ## Project Structure
 
 ```
 src/
 ├── main.ts                 # Game coordinator and entry point
+├── game-loop-controller.ts # RequestAnimationFrame-based game loop controller
 ├── game-context.ts         # GameStateManager and reactive state system
 ├── libs/
-│   └── subject.ts          # Observer pattern implementation
+│   ├── subject.ts          # Observer pattern implementation
+│   ├── types.ts            # TypeScript interface definitions
+│   └── constants.ts        # Game timing and configuration constants
 ├── snake.ts                # Snake entity with improved direction API
 ├── food.ts                 # Food entity with collision and scoring
 ├── renderer.ts             # Canvas rendering with state-reactive effects
@@ -105,7 +110,6 @@ src/
 ├── game-state-dialog.ts    # In-game dialog system with auto-hide
 ├── fullscreen-dialog.ts    # Modal dialog system with keyboard nav
 ├── settings.ts             # Game configuration management
-├── types.ts                # TypeScript type definitions
 ├── index.css               # Minimal stone aesthetic styling
 └── vite-env.d.ts           # Vite type definitions
 ```
@@ -400,6 +404,56 @@ class Component {
 - Plan for testing with dependency injection if needed
 - Document global state dependencies clearly
 
+## Game Loop Performance Architecture
+
+### GameLoopController System
+
+**Purpose**: High-performance, requestAnimationFrame-based game loop with comprehensive error handling and performance monitoring.
+
+**Key Features**:
+- **Fixed Timestep Updates**: Game logic runs at consistent 150ms intervals regardless of frame rate
+- **Variable Frame Rendering**: Smooth 60fps visual updates using requestAnimationFrame
+- **FPS Monitoring**: Real-time performance tracking displayed in top-right corner
+- **Error Recovery**: Automatic restart mechanism for loop failures
+- **Memory Optimization**: Bound methods prevent repeated function creation
+- **Spiral of Death Prevention**: Maximum frame skip limit prevents performance cascade failures
+
+**Architecture**:
+```typescript
+GameLoopController {
+  config: GameTimingConfig
+  state: GameLoopState
+  callbacks: { update, render, onFpsUpdate, onError }
+  
+  // Performance monitoring
+  getCurrentFps(): number
+  
+  // Lifecycle management
+  start(): void
+  stop(): void
+  
+  // Error handling with auto-recovery
+  private handleError(error: Error): void
+}
+```
+
+**Performance Benefits**:
+- **Smoother Animation**: 60fps rendering vs previous 6.7fps (150ms intervals)
+- **Battery Efficiency**: Automatic pause when tab inactive
+- **Error Resilience**: Graceful recovery from animation frame failures
+- **Memory Efficiency**: Optimized function binding prevents GC pressure
+
+### Game Timing Configuration
+
+**Constants** (`src/libs/constants.ts`):
+```typescript
+DEFAULT_GAME_TIMING = {
+  gameSpeed: 150,     // ms between game logic updates
+  targetFps: 60,      // target frames per second
+  maxFrameSkip: 5     // prevent spiral of death
+}
+```
+
 ## Future Enhancements
 
 ### Testing Infrastructure
@@ -409,7 +463,9 @@ class Component {
 - **Coverage Goals**: 80%+ for critical game logic
 
 ### Performance Improvements
-- **Animation**: RequestAnimationFrame for smoother rendering  
+- ✅ **Animation**: RequestAnimationFrame implementation with GameLoopController
+- ✅ **FPS Monitoring**: Real-time performance tracking and display
+- ✅ **Error Recovery**: Automatic game loop recovery mechanisms  
 - **Input**: Debounce rapid key presses
 - **Rendering**: Canvas optimization techniques
 - **Memory**: Object pooling for game entities
