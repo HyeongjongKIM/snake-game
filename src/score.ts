@@ -1,6 +1,23 @@
+import { GameStateManager } from './game-context';
+import type { Subscription } from './libs/subject';
+
 export class Score {
   private currentScore: number = 0;
   private readonly highScoreKey = 'snakeHighScore';
+  private gameStateManager: GameStateManager;
+  private scoreSubscription?: Subscription;
+
+  constructor() {
+    this.gameStateManager = GameStateManager.getInstance();
+    this.setupScoreSubscription();
+  }
+
+  private setupScoreSubscription(): void {
+    this.scoreSubscription = this.gameStateManager.subscribeToScore((newScore) => {
+      this.currentScore = newScore;
+      this.updateScoreDisplay();
+    });
+  }
 
   getCurrentScore(): number {
     return this.currentScore;
@@ -11,13 +28,12 @@ export class Score {
   }
 
   addPoints(points: number): void {
-    this.currentScore += points;
-    this.updateScoreDisplay();
+    const newScore = this.currentScore + points;
+    this.gameStateManager.setScore(newScore);
   }
 
   init(): void {
-    this.currentScore = 0;
-    this.updateScoreDisplay();
+    this.gameStateManager.setScore(0);
     this.updateHighScoreDisplay();
   }
 
@@ -45,4 +61,9 @@ export class Score {
     }
   }
 
+  public destroy(): void {
+    if (this.scoreSubscription && !this.scoreSubscription.closed) {
+      this.scoreSubscription.unsubscribe();
+    }
+  }
 }

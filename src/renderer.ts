@@ -1,3 +1,5 @@
+import { GameStateManager } from './game-context';
+import type { Subscription } from './libs/subject';
 import type { Snake } from './snake';
 import type { Food } from './food';
 
@@ -9,6 +11,8 @@ export class Renderer {
   private ctx: CanvasRenderingContext2D;
   private gridSize: number;
   private tileCount: number;
+  private gameStateManager: GameStateManager;
+  private gameStateSubscription?: Subscription;
 
   constructor(gridSize: number) {
     this.gridSize = gridSize;
@@ -20,6 +24,35 @@ export class Renderer {
     this.canvas = canvas;
     this.ctx = this.canvas.getContext('2d')!;
     this.tileCount = this.canvas.width / gridSize;
+    this.gameStateManager = GameStateManager.getInstance();
+    this.setupGameStateSubscription();
+  }
+
+  private setupGameStateSubscription(): void {
+    this.gameStateSubscription = this.gameStateManager.subscribeToGameState((newState) => {
+      // Adjust rendering based on game state if needed
+      if (newState === 'paused') {
+        this.dimCanvas();
+      } else if (newState === 'playing') {
+        this.restoreCanvas();
+      }
+    });
+  }
+
+  private dimCanvas(): void {
+    // Add a semi-transparent overlay for pause effect
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  private restoreCanvas(): void {
+    // Canvas will be redrawn in the next render cycle
+  }
+
+  public destroy(): void {
+    if (this.gameStateSubscription && !this.gameStateSubscription.closed) {
+      this.gameStateSubscription.unsubscribe();
+    }
   }
 
   /**

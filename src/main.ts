@@ -5,9 +5,9 @@ import { Score } from './score';
 import { GameStateDialog } from './game-state-dialog';
 import { FullScreenDialog } from './fullscreen-dialog';
 import { GameSettings } from './settings';
+import { GameStateManager, type GameState } from './game-context';
 import type { Position } from './types';
 
-type GameState = 'ready' | 'playing' | 'paused' | 'end';
 type DirectionKey = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
 
 const GRID_SIZE = 20;
@@ -39,14 +39,15 @@ class Game {
   private gameStateDialog!: GameStateDialog;
   private fullScreenDialog!: FullScreenDialog;
   private settings: GameSettings;
+  private gameStateManager: GameStateManager;
 
   private gridSize = GRID_SIZE;
   private canvasSize = 400; // Canvas size from HTML
 
-  private state: GameState = 'ready';
   private gameLoop: number | null = null;
 
   constructor() {
+    this.gameStateManager = GameStateManager.getInstance();
     this.settings = new GameSettings();
     this.initializeComponents();
     this.setupEventListeners();
@@ -57,6 +58,9 @@ class Game {
     const gridOption = this.settings.getGridSizeOption();
     this.gridSize = this.canvasSize / gridOption.tileCount;
 
+    // Clean up previous instances if they exist
+    this.cleanupComponents();
+
     this.renderer = new Renderer(this.gridSize);
     this.snake = new Snake(this.gridSize);
     this.food = new Food(this.gridSize);
@@ -65,9 +69,16 @@ class Game {
     this.fullScreenDialog = new FullScreenDialog();
   }
 
+  private cleanupComponents(): void {
+    if (this.renderer?.destroy) this.renderer.destroy();
+    if (this.score?.destroy) this.score.destroy();
+    if (this.gameStateDialog?.destroy) this.gameStateDialog.destroy();
+  }
+
   private initializeGame(): void {
     this.stopGame('ready');
     this.score.init();
+    this.gameStateManager.setScore(0);
     this.snake.init(this.renderer.getTileCount());
     this.food.generate(this.snake.getBody(), this.renderer.getTileCount());
     this.renderer.render(this.snake, this.food);
@@ -85,7 +96,8 @@ class Game {
   }
 
   private handleKeyPress(event: KeyboardEvent): void {
-    if (this.state === 'end' || this.fullScreenDialog.isDialogOpen()) {
+    const currentState = this.gameStateManager.getGameState();
+    if (currentState === 'end' || this.fullScreenDialog.isDialogOpen()) {
       return;
     }
 
@@ -98,7 +110,7 @@ class Game {
     // Handle pause toggle
     if (
       event.key === ' ' &&
-      (this.state === 'playing' || this.state === 'paused')
+      (currentState === 'playing' || currentState === 'paused')
     ) {
       this.togglePause();
       return;
@@ -126,9 +138,9 @@ class Game {
         this.snake.queueDirection(newDirection);
       }
 
-      if (this.state === 'ready' || this.state === 'paused') {
+      if (currentState === 'ready' || currentState === 'paused') {
         this.snake.setDirection(newDirection);
-        this.state = 'playing';
+        this.gameStateManager.setGameState('playing');
         this.startGame();
       }
     }
@@ -137,13 +149,13 @@ class Game {
   }
 
   private startGame(): void {
-    this.state = 'playing';
+    this.gameStateManager.setGameState('playing');
     this.gameStateDialog.hide();
     this.gameLoop = setInterval(() => this.update(), GAME_SPEED);
   }
 
   private stopGame(state: Exclude<GameState, 'playing'>) {
-    this.state = state;
+    this.gameStateManager.setGameState(state);
     if (this.gameLoop) {
       clearInterval(this.gameLoop);
       this.gameLoop = null;
@@ -160,7 +172,8 @@ class Game {
   }
 
   private togglePause() {
-    if (this.state === 'playing') {
+    const currentState = this.gameStateManager.getGameState();
+    if (currentState === 'playing') {
       this.stopGame('paused');
     } else {
       this.startGame();
@@ -168,7 +181,6 @@ class Game {
   }
 
   private endGame(): void {
-    this.state = 'end';
     this.stopGame('end');
     this.score.saveHighScore();
     this.gameStateDialog.show({
@@ -181,13 +193,14 @@ class Game {
   }
 
   private showSettings(): void {
+    const currentState = this.gameStateManager.getGameState();
     // Playing 중이면 게임 루프만 중단 (상태는 유지)
-    if (this.state === 'playing' && this.gameLoop) {
+    if (currentState === 'playing' && this.gameLoop) {
       clearInterval(this.gameLoop);
       this.gameLoop = null;
     }
 
-    if (this.state === 'paused') {
+    if (currentState === 'paused') {
       this.gameStateDialog.hide();
     }
 
@@ -195,11 +208,12 @@ class Game {
       type: 'settings',
       currentGridOption: this.settings.getGridSizeOption(),
       onBack: () => {
+        const state = this.gameStateManager.getGameState();
         this.fullScreenDialog.hide();
         // Playing 중이었다면 게임 재개
-        if (this.state === 'playing') {
+        if (state === 'playing') {
           this.startGame();
-        } else if (this.state === 'paused') {
+        } else if (state === 'paused') {
           this.togglePause();
         }
       },
@@ -220,7 +234,7 @@ class Game {
   }
 
   private update(): void {
-    if (this.state !== 'playing') return;
+    if (this.gameStateManager.getGameState() !== 'playing') return;
     this.snake.move();
     this.checkCollisions();
     this.checkFoodCollision();
@@ -241,7 +255,8 @@ class Game {
     const head = this.snake.getHead();
 
     if (this.food.checkCollision(head)) {
-      this.score.addPoints(this.food.getScore());
+      const points = this.food.getScore();
+      this.score.addPoints(points);
       this.food.generate(this.snake.getBody(), this.renderer.getTileCount());
     } else {
       this.snake.removeTail();
@@ -249,14 +264,15 @@ class Game {
   }
 
   private showInfo(): void {
+    const currentState = this.gameStateManager.getGameState();
     // Playing 중이면 게임 루프만 중단 (상태는 유지)
-    const wasPlaying = this.state === 'playing';
+    const wasPlaying = currentState === 'playing';
     if (wasPlaying && this.gameLoop) {
       clearInterval(this.gameLoop);
       this.gameLoop = null;
     }
 
-    if (this.state === 'paused') {
+    if (currentState === 'paused') {
       this.gameStateDialog.hide();
     }
 
@@ -264,10 +280,11 @@ class Game {
       type: 'info',
       onClose: () => {
         this.fullScreenDialog.hide();
+        const state = this.gameStateManager.getGameState();
         // Playing 중이었다면 게임 재개
         if (wasPlaying) {
           this.startGame();
-        } else if (this.state === 'paused') {
+        } else if (state === 'paused') {
           this.togglePause();
         }
       },

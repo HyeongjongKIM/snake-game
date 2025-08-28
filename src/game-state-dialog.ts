@@ -1,3 +1,6 @@
+import { GameStateManager } from './game-context';
+import type { Subscription } from './libs/subject';
+
 interface PauseDialogOptions {
   state: 'paused';
   onResume: () => void;
@@ -13,9 +16,28 @@ type GameStateDialogOptions = PauseDialogOptions | GameOverDialogOptions;
 export class GameStateDialog {
   private overlay: HTMLDivElement;
   private currentButton: HTMLButtonElement | null = null;
+  private gameStateManager: GameStateManager;
+  private gameStateSubscription?: Subscription;
 
   constructor() {
     this.overlay = document.getElementById('dialog') as HTMLDivElement;
+    this.gameStateManager = GameStateManager.getInstance();
+    this.setupGameStateSubscription();
+  }
+
+  private setupGameStateSubscription(): void {
+    this.gameStateSubscription = this.gameStateManager.subscribeToGameState((newState) => {
+      // Auto-hide dialog when game starts
+      if (newState === 'playing') {
+        this.hide();
+      }
+    });
+  }
+
+  public destroy(): void {
+    if (this.gameStateSubscription && !this.gameStateSubscription.closed) {
+      this.gameStateSubscription.unsubscribe();
+    }
   }
 
   show(options: GameStateDialogOptions) {
